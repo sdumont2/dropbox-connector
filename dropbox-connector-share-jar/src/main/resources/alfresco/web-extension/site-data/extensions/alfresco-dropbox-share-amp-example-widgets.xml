@@ -1,7 +1,7 @@
 <extension>
   <modules>
     <module>
-      <id>dropbox-connector-share-jar - Example Aikau Widgets</id>
+      <id>dropbox-connector-share-jar</id>
       <version>1.0</version>
       <auto-deploy>true</auto-deploy>
       <configurations>
@@ -9,7 +9,7 @@
           <web-framework>
             <dojo-pages>
               <packages>
-                <package name="tutorials" location="resources/dropbox-connector-share-jar/js/tutorials"/>
+                <package name="example" location="js/example"/>
               </packages>
             </dojo-pages>
           </web-framework>

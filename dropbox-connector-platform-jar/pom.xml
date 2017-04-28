@@ -17,6 +17,10 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.dropbox.core</groupId>
+            <artifactId>dropbox-core-sdk</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
