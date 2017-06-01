@@ -28,7 +28,7 @@
       <value>org.alfresco.dropbox.service.DropboxService</value>
    </property>
    <property name="target">
-      <ref bean="dropboxService" />
+      <ref bean="dropboxConnector" />
    </property>
    <property name="interceptorNames">
       <list>
@@ -109,7 +109,7 @@
        </property>
    </bean>
     
-    <bean id="dropboxService" class="org.alfresco.dropbox.service.DropboxServiceImpl">
+    <bean id="dropboxConnector" class="org.alfresco.dropbox.service.DropboxServiceImpl">
         <property name="personService">
             <ref bean="personService"/>
         </property>
@@ -144,8 +144,8 @@
 	
  <!-- Property Decorator -->
   <bean id="syncedToDropbox" parent="baseDecorator" class="org.alfresco.dropbox.repo.jscript.app.SyncedToDropbox">
-   <property name="dropboxService">
-   		<ref bean="dropboxService"/>
+   <property name="dropboxConnector">
+   		<ref bean="dropboxConnector"/>
    </property>
    <property name="propertyNames">
       <set>
@@ -166,16 +166,16 @@
 		<property name="actionService">
 			<ref bean="actionService"/>
 		</property>
-		<property name="dropboxService">
-			<ref bean="dropboxService"/>
+		<property name="dropboxConnector">
+			<ref bean="dropboxConnector"/>
 		</property>
     </bean>
 	
 	
 	<!-- Dropbox Actions -->
 	<bean id="dropboxUpdateAction" class ="org.alfresco.dropbox.service.action.DropboxUpdateAction" parent="action-executer">
-		<property name="dropboxService">
-			<ref bean="dropboxService"/>
+		<property name="dropboxConnector">
+			<ref bean="dropboxConnector"/>
 		</property>
 		<property name="lockService">
 			<ref bean="lockService"/>
@@ -189,14 +189,14 @@
 	</bean>
 	
 	<bean id="dropboxDeleteAction" class ="org.alfresco.dropbox.service.action.DropboxDeleteAction" parent="action-executer">
-		<property name="dropboxService">
-			<ref bean="dropboxService"/>
+		<property name="dropboxConnector">
+			<ref bean="dropboxConnector"/>
 		</property>
 	</bean>
 	
 	<bean id="dropboxMoveAction" class ="org.alfresco.dropbox.service.action.DropboxMoveAction" parent="action-executer">
-		<property name="dropboxService">
-			<ref bean="dropboxService"/>
+		<property name="dropboxConnector">
+			<ref bean="dropboxConnector"/>
 		</property>
 		<property name="nodeService">
 			<ref bean="nodeService"/>
@@ -218,8 +218,8 @@
 		<property name="transactionService">
             <ref bean="transactionService"/>
         </property>
-        <property name="dropboxService">
-            <ref bean="dropboxService"/>
+        <property name="dropboxConnector">
+            <ref bean="dropboxConnector"/>
         </property>
     </bean>
     
@@ -254,8 +254,8 @@
         <property name="nodeService">
             <ref bean="NodeService"/>
         </property>
-        <property name="dropboxService">
-            <ref bean="dropboxService"/>
+        <property name="dropboxConnector">
+            <ref bean="dropboxConnector"/>
         </property>
         <property name="fileFolderService">
             <ref bean="FileFolderService"/>
@@ -269,8 +269,8 @@
         <property name="nodeService">
             <ref bean="NodeService"/>
         </property>
-        <property name="dropboxService">
-            <ref bean="dropboxService"/>
+        <property name="dropboxConnector">
+            <ref bean="dropboxConnector"/>
         </property>
         <property name="fileFolderService">
             <ref bean="FileFolderService"/>
@@ -281,8 +281,8 @@
         <property name="nodeService">
             <ref bean="NodeService"/>
         </property>
-        <property name="dropboxService">
-            <ref bean="dropboxService"/>
+        <property name="dropboxConnector">
+            <ref bean="dropboxConnector"/>
         </property>
         <property name="fileFolderService">
             <ref bean="FileFolderService"/>
@@ -302,26 +302,26 @@
         <property name="nodeService">
             <ref bean="nodeService"/>
         </property>
-        <property name="dropboxService">
-            <ref bean="dropboxService"/>
+        <property name="dropboxConnector">
+            <ref bean="dropboxConnector"/>
         </property>
     </bean>
     
     <bean id="webscript.org.alfresco.dropbox.webscripts.urlDropboxAuth.get" class="org.alfresco.dropbox.webscripts.UrlDropboxAuth" parent="webscript">
-        <property name="dropboxService">
-            <ref bean="dropboxService"/>
+        <property name="dropboxConnector">
+            <ref bean="dropboxConnector"/>
         </property>
     </bean>
     
     <bean id="webscript.org.alfresco.dropbox.webscripts.completeDropboxAuth.get" class="org.alfresco.dropbox.webscripts.CompleteDropboxAuth" parent="webscript">
-        <property name="dropboxService">
-            <ref bean="dropboxService"/>
+        <property name="dropboxConnector">
+            <ref bean="dropboxConnector"/>
         </property>
     </bean>
 	
 	<bean id="webscript.org.alfresco.dropbox.webscripts.popupCompleteDropboxAuth.get" class="org.alfresco.dropbox.webscripts.PopUpCompleteDropboxAuth" parent="webscript">
-        <property name="dropboxService">
-            <ref bean="dropboxService"/>
+        <property name="dropboxConnector">
+            <ref bean="dropboxConnector"/>
         </property>
     </bean>
     
