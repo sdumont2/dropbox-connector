@@ -24,18 +24,25 @@ import com.dropbox.core.http.OkHttp3Requestor;
 import com.dropbox.core.v2.DbxClientV2;
 import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.repo.policy.BehaviourFilter;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.oauth2.OAuth2CredentialsStoreService;
 import org.alfresco.service.cmr.remotecredentials.OAuth2CredentialsInfo;
 import org.alfresco.service.cmr.repository.ContentService;
+import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.site.SiteService;
+import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dropbox.DropboxConnector;
 import org.dropbox.DropboxConstants;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DropboxConnectorImpl implements DropboxConnector
 {
@@ -97,6 +104,70 @@ public class DropboxConnectorImpl implements DropboxConnector
 			authorizeUrl = dbxWebAuth.authorize(authRequest);
 		}
 		return authorizeUrl;
+	}
+
+	public boolean completeAuthentication(String callbackUrl, DbxSessionStore csrfTokenStore, Map<String,String[]> request){
+		boolean authenticationComplete = false;
+		if(csrfTokenStore != null){
+			NodeRef person = personService.getPerson(AuthenticationUtil.getRunAsUser());
+
+			if(nodeService.hasAspect(person, DropboxConstants.Model.ASPECT_DROBOX_OAUTH)){
+				OAuth2CredentialsInfo credsInfo = getTokenFromUser();
+
+				DbxAuthFinish authFinish;
+				try {
+					authFinish = dbxWebAuth.finishFromRedirect(callbackUrl, csrfTokenStore, request);
+				} catch (DbxWebAuth.BadRequestException ex) {
+					logger.error("On /dropbox-auth-finish: Bad request: " + ex.getMessage());
+					//response.sendError(400);
+					return false;
+				} catch (DbxWebAuth.BadStateException ex) {
+					// Send them back to the start of the auth flow.
+					//response.sendRedirect("http://my-server.com/dropbox-auth-start");
+					return false;
+				} catch (DbxWebAuth.CsrfException ex) {
+					logger.error("On /dropbox-auth-finish: CSRF mismatch: " + ex.getMessage());
+					//response.sendError(403, "Forbidden.");
+					return false;
+				} catch (DbxWebAuth.NotApprovedException ex) {
+					// When Dropbox asked "Do you want to allow this app to access your
+					// Dropbox account?", the user clicked "No".
+					return false;
+				} catch (DbxWebAuth.ProviderException ex) {
+					logger.error("On /dropbox-auth-finish: Auth failed: " + ex.getMessage());
+					//response.sendError(503, "Error communicating with Dropbox.");
+					return false;
+				} catch (DbxException ex) {
+					logger.error("On /dropbox-auth-finish: Error getting token: " + ex.getMessage());
+					//response.sendError(503, "Error communicating with Dropbox.");
+					return false;
+				}
+				String accessToken = authFinish.getAccessToken();
+
+				persistTokens(accessToken, true);
+
+				authenticationComplete = true;
+			}
+		}
+		return authenticationComplete;
+	}
+
+	private OAuth2CredentialsInfo getTokenFromUser(){
+		return oAuth2CredentialsStoreService.getPersonalOAuth2Credentials(DropboxConstants.REMOTE_SYSTEM);
+	}
+
+	private void persistTokens(String accessToken, boolean complete){
+		OAuth2CredentialsInfo credsInfo = oAuth2CredentialsStoreService.getPersonalOAuth2Credentials(DropboxConstants.REMOTE_SYSTEM);
+
+		credsInfo = oAuth2CredentialsStoreService.storePersonalOAuth2Credentials(DropboxConstants.REMOTE_SYSTEM, accessToken, null, null, null);
+
+		if(credsInfo !=null){
+			HashMap<QName, Serializable> properties = new HashMap<>();
+			properties.put(DropboxConstants.Model.PROP_OAUTH_COMPLETE, complete);
+
+			NodeRef person = personService.getPerson(AuthenticationUtil.getRunAsUser());
+			nodeService.addAspect(person, DropboxConstants.Model.ASPECT_DROBOX_OAUTH, properties);
+		}
 	}
 
 	// Start Auth on link account button

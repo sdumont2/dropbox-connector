@@ -20,16 +20,21 @@
 package org.dropbox.webscripts;
 
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.dropbox.DropboxConnector;
+import com.dropbox.core.DbxSessionStore;
+import com.dropbox.core.DbxStandardSessionStore;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.dropbox.DropboxConnector;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
+import org.springframework.extensions.webscripts.servlet.WebScriptServletRuntime;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -44,6 +49,7 @@ public class CompleteDropboxAuth
     private DropboxConnector dropboxConnector;
 
     private static final String VERIFIER = "verifier";
+    private static final String CALLBACKURL = "/share/service/dropbox/account/verifier";
 
 
     public void setDropboxConnector(DropboxConnector dropboxConnector)
@@ -62,7 +68,12 @@ public class CompleteDropboxAuth
         if (req.getParameter(VERIFIER) != null)
         {
             logger.error("Verifier: " + req.getParameter(VERIFIER));
-            authenticated = dropboxConnector.completeAuthentication(req.getParameter(VERIFIER));
+            HttpServletRequest httpReq = WebScriptServletRuntime.getHttpServletRequest(req);
+            HttpSession session = httpReq.getSession(true);
+            String sessionKey = "dropbox-auth-csrf-token";
+            DbxSessionStore csrfTokenStore = new DbxStandardSessionStore(session, sessionKey);
+
+            authenticated = dropboxConnector.completeAuthentication(req.getServerPath()+CALLBACKURL, csrfTokenStore, httpReq.getParameterMap());
             logger.debug("Dance Complete: " + authenticated);
         }
 

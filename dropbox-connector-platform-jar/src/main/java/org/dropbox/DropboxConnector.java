@@ -23,6 +23,8 @@ import com.dropbox.core.DbxSessionStore;
 import com.dropbox.core.DbxWebAuth;
 import com.dropbox.core.v2.DbxClientV2;
 
+import java.util.Map;
+
 public interface DropboxConnector
 {
 	// Start Auth on link account button
@@ -36,6 +38,7 @@ public interface DropboxConnector
 	//client
 	public DbxClientV2 getClient();
 	public String getAuthorizeUrl(String callbackUrl, DbxSessionStore csrfTokenStore);
+	public boolean completeAuthentication(String callbackUrl, DbxSessionStore csrfTokenStore, Map<String,String[]> request);
 	public DbxWebAuth getDbxWebAuth();
 
 	//user info call
