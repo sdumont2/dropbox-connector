@@ -21,6 +21,8 @@ package org.dropbox.webscripts;
 
 
 import com.dropbox.core.DbxException;
+import com.dropbox.core.DbxSessionStore;
+import com.dropbox.core.DbxStandardSessionStore;
 import com.dropbox.core.v2.DbxClientV2;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -32,7 +34,10 @@ import org.apache.commons.logging.LogFactory;
 import org.dropbox.DropboxConnector;
 import org.dropbox.DropboxConstants;
 import org.springframework.extensions.webscripts.*;
+import org.springframework.extensions.webscripts.servlet.WebScriptServletRuntime;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -139,7 +144,12 @@ public class DropboxUser
         {
             String callbackUrl = req.getParameter(CALLBACK_PARAM) + CALLBACK_WEBSCRIPT;
 
-            return dropboxConnector.getAuthorizeUrl(callbackUrl);
+            HttpServletRequest httpReq = WebScriptServletRuntime.getHttpServletRequest(req);
+            HttpSession session = httpReq.getSession(true);
+            String sessionKey = "dropbox-auth-csrf-token";
+            DbxSessionStore csrfTokenStore = new DbxStandardSessionStore(session, sessionKey);
+
+            return dropboxConnector.getAuthorizeUrl(callbackUrl, csrfTokenStore);
         }
         else
         {

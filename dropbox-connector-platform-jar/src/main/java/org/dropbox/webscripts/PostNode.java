@@ -20,18 +20,7 @@
 package org.dropbox.webscripts;
 
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.alfresco.dropbox.DropboxConstants;
-import org.springframework.social.dropbox.api.Metadata;
-import org.springframework.web.client.HttpClientErrorException;
-import org.alfresco.dropbox.exceptions.DropboxClientException;
-import org.alfresco.dropbox.exceptions.FileExistsException;
-import org.alfresco.dropbox.exceptions.FileSizeException;
-import org.alfresco.dropbox.exceptions.NotModifiedException;
-import org.alfresco.dropbox.exceptions.TooManyFilesException;
+import com.dropbox.core.v2.files.Metadata;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.dictionary.InvalidTypeException;
 import org.alfresco.service.cmr.model.FileInfo;
@@ -41,10 +30,17 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.site.SiteService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.dropbox.DropboxConstants;
+import org.dropbox.exceptions.*;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
+import org.springframework.web.client.HttpClientErrorException;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**

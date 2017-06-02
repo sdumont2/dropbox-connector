@@ -16,18 +16,10 @@
 package org.dropbox.webscripts;
 
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-
-import org.dropbox.DropboxConstants;
-import org.springframework.social.dropbox.api.Metadata;
-import org.springframework.web.client.HttpClientErrorException;
+import com.dropbox.core.DbxException;
+import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.FolderMetadata;
+import com.dropbox.core.v2.files.Metadata;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -39,11 +31,16 @@ import org.alfresco.service.cmr.version.VersionType;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.dropbox.DropboxConstants;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
+import org.springframework.web.client.HttpClientErrorException;
+
+import java.io.Serializable;
+import java.util.*;
+import java.util.regex.Matcher;
 
 
 /**
@@ -149,32 +146,39 @@ public class GetNode
 
         if (nodeService.getType(nodeRef).equals(ContentModel.TYPE_CONTENT))
         {
-            if (!metadata.getRev().equals(persistedMetadata.get(DropboxConstants.Model.PROP_REV).toString()))
-            {
-                // We need to make the node Versionable if it isn't already
-                makeVersionable(nodeRef);
+            if(metadata instanceof FileMetadata) {
+                FileMetadata fileMetadata = (FileMetadata) metadata;
+                if (!fileMetadata.getRev().equals(persistedMetadata.get(DropboxConstants.Model.PROP_REV).toString())) {
+                    // We need to make the node Versionable if it isn't already
+                    makeVersionable(nodeRef);
 
-                // TODO Add modified date test?
-                metadata = dropboxConnector.getFile(nodeRef);
+                    // TODO Add modified date test?
+                    metadata = dropboxConnector.getFile(nodeRef);
 
-                dropboxConnector.persistMetadata(metadata, nodeRef);
+                    dropboxConnector.persistMetadata(metadata, nodeRef);
 
-                syncUpdate(nodeRef, false);
+                    syncUpdate(nodeRef, false);
+                }
             }
         }
     }
 
-
+    //TODO Redo this
     private void updateChildren(NodeRef nodeRef)
     {
         Metadata parentMetadata = dropboxConnector.getMetadata(nodeRef);
 
         // Get the list of the content returned.
-        List<Metadata> list = parentMetadata.getContents();
+        List<Metadata> list = null;
+        try {
+            list = dropboxConnector.getClient().files().listFolder(parentMetadata.getPathDisplay()).getEntries();
+        } catch (DbxException e) {
+            e.printStackTrace();
+        }
 
         for (Metadata child : list)
         {
-            String name = child.getPath().replaceAll(Matcher.quoteReplacement(parentMetadata.getPath() + "/"), "");
+            String name = child.getPathDisplay().replaceAll(Matcher.quoteReplacement(parentMetadata.getPathDisplay() + "/"), "");
 
             NodeRef childNodeRef = fileFolderService.searchSimple(nodeRef, name);
 
@@ -184,7 +188,7 @@ public class GetNode
 
                 try
                 {
-                    if (child.isDir())
+                    if (child instanceof FolderMetadata)
                     {
                         newChildNodeRef = fileFolderService.create(nodeRef, name, ContentModel.TYPE_FOLDER).getNodeRef();
                         updateChildren(newChildNodeRef);
