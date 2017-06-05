@@ -12,36 +12,27 @@
         </property>
     </bean>
  
-    <!-- Dropbox Connection Factory -->
-	
-	<bean id="dropboxConnectionFactory" class="org.springframework.social.dropbox.connect.DropboxConnectionFactory">
-       <!-- <constructor-arg value="pui4gpsuwdf8kw4"/> key -->
-        <!-- <constructor-arg value="0z7w3ztllldstl1"/> secret -->
-        <constructor-arg value="a4yx43gwuxvrtsm"/> <!--testapp key and secret-->
-        <constructor-arg value="mwnu3vea9myezhr"/>
-    </bean>
+ <!-- Dropbox Connector -->
  
- <!-- Dropbox Service -->
- 
- <bean id="DropboxService" class="org.springframework.aop.framework.ProxyFactoryBean">
+ <bean id="DropboxConnector" class="org.springframework.aop.framework.ProxyFactoryBean">
    <property name="proxyInterfaces">
-      <value>org.alfresco.dropbox.service.DropboxService</value>
+      <value>com.fikatechnologies.dropbox.DropboxConnector</value>
    </property>
    <property name="target">
       <ref bean="dropboxConnector" />
    </property>
    <property name="interceptorNames">
       <list>
-            <idref bean="dropboxServiceReadTxnAdvisor"/>
-            <idref bean="dropboxServiceWriteTxnAdvisor"/>
+            <idref bean="dropboxConnectorReadTxnAdvisor"/>
+            <idref bean="dropboxConnectorWriteTxnAdvisor"/>
             <idref bean="AuditMethodInterceptor"/>
             <idref bean="exceptionTranslator"/>
-            <idref bean="dropboxService_security"/>
+            <idref bean="dropboxConnector_security"/>
       </list>
    </property>
  </bean>
  
-  <bean id="dropboxService_security" class="org.alfresco.repo.security.permissions.impl.acegi.MethodSecurityInterceptor">
+  <bean id="dropboxConnector_security" class="org.alfresco.repo.security.permissions.impl.acegi.MethodSecurityInterceptor">
       <property name="authenticationManager">
          <ref bean="authenticationManager"/>
       </property>
@@ -53,27 +44,27 @@
       </property>
       <property name="objectDefinitionSource">
          <value>
-            org.alfresco.dropbox.service.DropboxService.getAuthorizeUrl=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.completeAuthentication=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.getUserProfile=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.getMetadata=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.getPersistedMetadata=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.persistMetadata=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.deletePersistedMetadata=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.getFile=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.putFile=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.createFolder=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.getDropboxPath=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.isSynced=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.move=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.copy=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.delete=ACL_ALLOW
-            org.alfresco.dropbox.service.DropboxService.*=ACL_DENY
+            com.fikatechnologies.dropbox.DropboxConnector.getAuthorizeUrl=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.completeAuthentication=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.getUserProfile=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.getMetadata=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.getPersistedMetadata=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.persistMetadata=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.deletePersistedMetadata=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.getFile=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.putFile=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.createFolder=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.getDropboxPath=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.isSynced=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.move=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.copy=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.delete=ACL_ALLOW
+            com.fikatechnologies.dropbox.DropboxConnector.*=ACL_DENY
          </value>
       </property>
   </bean>
   
-   <bean id="dropboxServiceReadTxnAdvisor" class="org.springframework.aop.support.NameMatchMethodPointcutAdvisor">
+   <bean id="dropboxConnectorReadTxnAdvisor" class="org.springframework.aop.support.NameMatchMethodPointcutAdvisor">
       <property name="advice">
          <ref bean="retryingReadTxnAdvice"/>
       </property>
@@ -90,7 +81,7 @@
       </property>
    </bean>
  
-   <bean id="dropboxServiceWriteTxnAdvisor" class="org.springframework.aop.support.NameMatchMethodPointcutAdvisor">
+   <bean id="dropboxConnectorWriteTxnAdvisor" class="org.springframework.aop.support.NameMatchMethodPointcutAdvisor">
       <property name="advice">
          <ref bean="retryingWriteTxnAdvice"/>
       </property>
@@ -109,7 +100,7 @@
        </property>
    </bean>
     
-    <bean id="dropboxConnector" class="org.alfresco.dropbox.service.DropboxServiceImpl">
+    <bean id="dropboxConnector" class="com.fikatechnologies.dropbox.impl.DropboxConnectorImpl">
         <property name="personService">
             <ref bean="personService"/>
         </property>
@@ -134,9 +125,6 @@
 		<property name="behaviourFilter">
 			<ref bean="policyBehaviourFilter"/>
 		</property>
-        <property name="connectionFactory">
-            <ref bean="dropboxConnectionFactory"/>
-        </property>
         <property name="oauth2CredentialsStoreService">
         	<ref bean="oauth2CredentialsStoreService"/>
         </property>
