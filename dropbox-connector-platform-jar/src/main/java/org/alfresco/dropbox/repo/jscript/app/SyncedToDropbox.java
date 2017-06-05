@@ -41,7 +41,7 @@ public class SyncedToDropbox
     DropboxConnector dropboxConnector;
 
 
-    public void setDropboxService(DropboxConnector dropboxConnector)
+    public void setDropboxConnector(DropboxConnector dropboxConnector)
     {
         this.dropboxConnector = dropboxConnector;
     }

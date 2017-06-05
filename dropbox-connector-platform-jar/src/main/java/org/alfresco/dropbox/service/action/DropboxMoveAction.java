@@ -52,7 +52,7 @@ public class DropboxMoveAction
     public static final String DROPBOX_TO_PATH   = "dropbox-to-path";
 
 
-    public void setDropboxService(DropboxConnector dropboxConnector)
+    public void setDropboxConnector(DropboxConnector dropboxConnector)
     {
         this.dropboxConnector = dropboxConnector;
     }

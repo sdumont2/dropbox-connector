@@ -87,7 +87,7 @@ public class DropboxAspect
     }
 
 
-    public void setDropboxService(DropboxConnector dropboxConnector)
+    public void setDropboxConnector(DropboxConnector dropboxConnector)
     {
         this.dropboxConnector = dropboxConnector;
     }

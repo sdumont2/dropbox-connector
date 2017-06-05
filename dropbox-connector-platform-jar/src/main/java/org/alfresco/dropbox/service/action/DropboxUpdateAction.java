@@ -61,7 +61,7 @@ public class DropboxUpdateAction
     public static final String DROPBOX_USE_PARENT = "dropbox-use-parent";
 
 
-    public void setDropboxService(DropboxConnector dropboxConnector)
+    public void setDropboxConnector(DropboxConnector dropboxConnector)
     {
         this.dropboxConnector = dropboxConnector;
     }

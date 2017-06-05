@@ -6,13 +6,10 @@ import com.dropbox.core.DbxWebAuth;
 import com.dropbox.core.v2.DbxClientV2;
 
 
-/**
- * Created by sean on 6/5/17.
- */
 public class DropboxClientFactory {
 
-    private final DbxRequestConfig dbxRequestConfig;
-    private final DbxWebAuth dbxWebAuth;
+    private DbxRequestConfig dbxRequestConfig;
+    private DbxWebAuth dbxWebAuth;
 
     public DropboxClientFactory(String appKey, String appSecret){
         DbxAppInfo dbxAppInfo = new DbxAppInfo(appKey, appSecret);
@@ -21,10 +18,10 @@ public class DropboxClientFactory {
     }
 
     public DbxWebAuth getDbxWebAuth() {
-        return dbxWebAuth;
+        return this.dbxWebAuth;
     }
 
     public DbxClientV2 createClient(String accessToken){
-        return new DbxClientV2(dbxRequestConfig, accessToken);
+        return new DbxClientV2(this.dbxRequestConfig, accessToken);
     }
 }

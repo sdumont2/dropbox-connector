@@ -90,7 +90,7 @@ public class DropboxPollerImpl
     }
 
 
-    public void setDropboxService(DropboxConnector dropboxConnector)
+    public void setDropboxConnector(DropboxConnector dropboxConnector)
     {
         this.dropboxConnector = dropboxConnector;
     }

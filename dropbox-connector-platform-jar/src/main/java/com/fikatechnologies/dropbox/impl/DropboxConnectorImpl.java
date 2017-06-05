@@ -21,10 +21,10 @@ package com.fikatechnologies.dropbox.impl;
 
 import com.dropbox.core.*;
 import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.files.ListFolderResult;
-import com.dropbox.core.v2.files.Metadata;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.FolderMetadata;
+import com.dropbox.core.v2.files.ListFolderResult;
+import com.dropbox.core.v2.files.Metadata;
 import com.dropbox.core.v2.users.FullAccount;
 import com.dropbox.core.v2.users.SpaceUsage;
 import com.fikatechnologies.dropbox.DropboxConnector;
@@ -66,6 +66,62 @@ public class DropboxConnectorImpl implements DropboxConnector
 	private BehaviourFilter behaviourFilter;
 	private OAuth2CredentialsStoreService oauth2CredentialsStoreService;
 	private DropboxClientFactory dropboxClientFactory;
+
+	public void setPersonService(PersonService personService)
+	{
+		this.personService = personService;
+	}
+
+
+	public void setNodeService(NodeService nodeService)
+	{
+		this.nodeService = nodeService;
+	}
+
+
+	public void setContentService(ContentService contentService)
+	{
+		this.contentService = contentService;
+	}
+
+
+	public void setPermissionService(PermissionService permissionService)
+	{
+		this.permissionService = permissionService;
+	}
+
+
+	public void setSysAdminParams(SysAdminParams sysAdminParams)
+	{
+		this.sysAdminParams = sysAdminParams;
+	}
+
+
+	public void setAuthorityService(AuthorityService authorityService)
+	{
+		this.authorityService = authorityService;
+	}
+
+
+	public void setSiteService(SiteService siteService)
+	{
+		this.siteService = siteService;
+	}
+
+
+	public void setBehaviourFilter(BehaviourFilter behaviourFilter)
+	{
+		this.behaviourFilter = behaviourFilter;
+	}
+
+	public void setOauth2CredentialsStoreService(OAuth2CredentialsStoreService oauth2CredentialsStoreService)
+	{
+		this.oauth2CredentialsStoreService = oauth2CredentialsStoreService;
+	}
+
+	public void setDropboxClientFactory(DropboxClientFactory dropboxClientFactory){
+		this.dropboxClientFactory = dropboxClientFactory;
+	}
 
 	private DbxClientV2 getClient() {
 		DbxClientV2 client = null;
@@ -636,61 +692,5 @@ public class DropboxConnectorImpl implements DropboxConnector
 			throw new IllegalArgumentException("Metadata supplied was neither folder metadata or file metadata");
 		}
 		return json;
-	}
-
-	public void setPersonService(PersonService personService)
-	{
-		this.personService = personService;
-	}
-
-
-	public void setNodeService(NodeService nodeService)
-	{
-		this.nodeService = nodeService;
-	}
-
-
-	public void setContentService(ContentService contentService)
-	{
-		this.contentService = contentService;
-	}
-
-
-	public void setPermissionService(PermissionService permissionService)
-	{
-		this.permissionService = permissionService;
-	}
-
-
-	public void setSysAdminParams(SysAdminParams sysAdminParams)
-	{
-		this.sysAdminParams = sysAdminParams;
-	}
-
-
-	public void setAuthorityService(AuthorityService authorityService)
-	{
-		this.authorityService = authorityService;
-	}
-
-
-	public void setSiteService(SiteService siteService)
-	{
-		this.siteService = siteService;
-	}
-
-
-	public void setBehaviourFilter(BehaviourFilter behaviourFilter)
-	{
-		this.behaviourFilter = behaviourFilter;
-	}
-
-	public void setOauth2CredentialsStoreService(OAuth2CredentialsStoreService oauth2CredentialsStoreService)
-	{
-		this.oauth2CredentialsStoreService = oauth2CredentialsStoreService;
-	}
-
-	public void setDropboxClientFactory(DropboxClientFactory dropboxClientFactory){
-		this.dropboxClientFactory = dropboxClientFactory;
 	}
 }

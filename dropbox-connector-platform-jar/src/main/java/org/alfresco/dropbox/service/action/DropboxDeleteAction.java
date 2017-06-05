@@ -50,7 +50,7 @@ public class DropboxDeleteAction
     public static final String DROPBOX_USERS = "dropbox-users";
 
 
-    public void setDropboxService(DropboxConnector dropboxService)
+    public void setDropboxConnector(DropboxConnector dropboxConnector)
     {
         this.dropboxConnector = dropboxConnector;
     }
