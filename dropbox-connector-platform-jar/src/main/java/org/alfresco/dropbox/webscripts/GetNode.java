@@ -16,10 +16,10 @@
 package org.alfresco.dropbox.webscripts;
 
 
-import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.FolderMetadata;
 import com.dropbox.core.v2.files.Metadata;
+import org.alfresco.dropbox.DropboxConstants;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -31,7 +31,6 @@ import org.alfresco.service.cmr.version.VersionType;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.alfresco.dropbox.DropboxConstants;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
@@ -169,12 +168,7 @@ public class GetNode
         Metadata parentMetadata = dropboxConnector.getMetadata(nodeRef);
 
         // Get the list of the content returned.
-        List<Metadata> list = null;
-        try {
-            list = dropboxConnector.getClient().files().listFolder(parentMetadata.getPathDisplay()).getEntries();
-        } catch (DbxException e) {
-            e.printStackTrace();
-        }
+        List<Metadata> list = dropboxConnector.getSpace(parentMetadata.getPathDisplay()).getEntries();
 
         for (Metadata child : list)
         {

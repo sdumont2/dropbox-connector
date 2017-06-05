@@ -21,9 +21,12 @@ package com.fikatechnologies.dropbox.impl;
 
 import com.dropbox.core.*;
 import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.FolderMetadata;
+import com.dropbox.core.v2.users.FullAccount;
+import com.dropbox.core.v2.users.SpaceUsage;
 import com.fikatechnologies.dropbox.DropboxConnector;
 import org.alfresco.dropbox.DropboxConstants;
 import org.alfresco.dropbox.exceptions.DropboxClientException;
@@ -62,25 +65,21 @@ public class DropboxConnectorImpl implements DropboxConnector
 	private SiteService siteService;
 	private BehaviourFilter behaviourFilter;
 	private OAuth2CredentialsStoreService oauth2CredentialsStoreService;
-	private String appKey;
-	private String appSecret;
+	private DropboxClientFactory dropboxClientFactory;
 
-	private DbxClientV2 client;
-	private final DbxAppInfo dbxAppInfo = new DbxAppInfo(appKey, appSecret);
-	private final DbxRequestConfig dbxRequestConfig = new DbxRequestConfig("alfresco/2.0");
-	private final DbxWebAuth dbxWebAuth = new DbxWebAuth(dbxRequestConfig, dbxAppInfo);
+	private DbxClientV2 getClient() {
+		DbxClientV2 client = null;
 
-	@Override
-	public DbxClientV2 getClient() {
-		if (client == null) {
-			String accessToken;
-			OAuth2CredentialsInfo credsInfo = getTokenFromUser();
-			if(credsInfo!=null) {
-				accessToken = credsInfo.getOAuthAccessToken();
+		String accessToken;
 
-				client = new DbxClientV2(dbxRequestConfig, accessToken);
-			}
+		OAuth2CredentialsInfo credsInfo = getTokenFromUser();
+
+		if(credsInfo!=null) {
+			accessToken = credsInfo.getOAuthAccessToken();
+
+			client = dropboxClientFactory.createClient(accessToken);
 		}
+
 		return client;
 	}
 
@@ -92,7 +91,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 			DbxWebAuth.Request authRequest = DbxWebAuth.newRequestBuilder()
 					.withRedirectUri(callbackUrl, csrfTokenStore).build();
 
-			authorizeUrl = dbxWebAuth.authorize(authRequest);
+			authorizeUrl = dropboxClientFactory.getDbxWebAuth().authorize(authRequest);
 		}
 		return authorizeUrl;
 	}
@@ -106,7 +105,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 			if(nodeService.hasAspect(person, DropboxConstants.Model.ASPECT_DROBOX_OAUTH)){
 				DbxAuthFinish authFinish;
 				try {
-					authFinish = dbxWebAuth.finishFromRedirect(callbackUrl, csrfTokenStore, request);
+					authFinish = dropboxClientFactory.getDbxWebAuth().finishFromRedirect(callbackUrl, csrfTokenStore, request);
 				} catch (Exception ex) {
 					logger.error("On /dropbox-auth-finish: Error: " + ex.getMessage());
 					//response.sendError(503, "Error communicating with Dropbox.");
@@ -140,6 +139,43 @@ public class DropboxConnectorImpl implements DropboxConnector
 			NodeRef person = personService.getPerson(AuthenticationUtil.getRunAsUser());
 			nodeService.addAspect(person, DropboxConstants.Model.ASPECT_DROBOX_OAUTH, properties);
 		}
+	}
+
+	@Override
+	public FullAccount getUserProfile(){
+		FullAccount fullAccount = null;
+		DbxClientV2 clientV2 = this.getClient();
+		try {
+			fullAccount = clientV2.users().getCurrentAccount();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return fullAccount;
+	}
+
+	@Override
+	public SpaceUsage getUserSpaceUsage(){
+		SpaceUsage spaceUsage = null;
+		DbxClientV2 clientV2 = this.getClient();
+		try {
+			spaceUsage = clientV2.users().getSpaceUsage();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return spaceUsage;
+	}
+
+	public ListFolderResult getSpace(String path){
+		ListFolderResult listFolderResult = null;
+		DbxClientV2 clientV2 = this.getClient();
+
+		try {
+			listFolderResult = clientV2.files().listFolder(path);
+		} catch (DbxException e) {
+			e.printStackTrace();
+		}
+
+		return listFolderResult;
 	}
 
 	@Override
@@ -654,11 +690,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 		this.oauth2CredentialsStoreService = oauth2CredentialsStoreService;
 	}
 
-	public void setAppKey(String appKey){
-		this.appKey = appKey;
-	}
-
-	public void setAppSecret(String appSecret){
-		this.appSecret = appSecret;
+	public void setDropboxClientFactory(DropboxClientFactory dropboxClientFactory){
+		this.dropboxClientFactory = dropboxClientFactory;
 	}
 }

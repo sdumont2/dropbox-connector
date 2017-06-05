@@ -19,9 +19,11 @@
  */
 package com.fikatechnologies.dropbox;
 
-import com.dropbox.core.*;
-import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.DbxSessionStore;
+import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
+import com.dropbox.core.v2.users.FullAccount;
+import com.dropbox.core.v2.users.SpaceUsage;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
@@ -37,8 +39,6 @@ import java.util.Map;
 public interface DropboxConnector
 {
 
-	public DbxClientV2 getClient();
-
 	/**
 	 * Get the oAuth1 Authorization Url for the current user
 	 *
@@ -46,7 +46,7 @@ public interface DropboxConnector
 	 * @param csrfTokenStore
 	 * @return
 	 */
-	public String getAuthorizeUrl(String callbackUrl, DbxSessionStore csrfTokenStore);
+	String getAuthorizeUrl(String callbackUrl, DbxSessionStore csrfTokenStore);
 
 	/**
 	 * Complete the oAuth2 Flow. Persists the returned tokens for the current User
@@ -56,7 +56,26 @@ public interface DropboxConnector
 	 * @param request
 	 * @return
 	 */
-	public boolean completeAuthentication(String callbackUrl, DbxSessionStore csrfTokenStore, Map<String,String[]> request);
+	boolean completeAuthentication(String callbackUrl, DbxSessionStore csrfTokenStore, Map<String, String[]> request);
+
+	/**
+	 *
+	 * @return fullAccount
+	 */
+	FullAccount getUserProfile();
+
+	/**
+	 *
+	 * @return spaceUsage
+	 */
+	SpaceUsage getUserSpaceUsage();
+
+	/**
+	 *
+	 * @param path
+	 * @return listFolderResult
+	 */
+	ListFolderResult getSpace(String path);
 
 	/**
 	 * Get the current users Dropbox metadata for the node from Dropbox
@@ -64,7 +83,7 @@ public interface DropboxConnector
 	 * @param nodeRef
 	 * @return
 	 */
-	public Metadata getMetadata(NodeRef nodeRef);
+	Metadata getMetadata(NodeRef nodeRef);
 
 	/**
 	 * Get the Dropbox metadata for the node from Alfresco for the current user.
@@ -73,7 +92,7 @@ public interface DropboxConnector
 	 * @param nodeRef
 	 * @return
 	 */
-	public Map<QName, Serializable> getPersistedMetadata(NodeRef nodeRef);
+	Map<QName, Serializable> getPersistedMetadata(NodeRef nodeRef);
 
 	/**
 	 * Persist the Dropbox metadata to the node for the current user.
@@ -83,7 +102,7 @@ public interface DropboxConnector
 	 * @param metadata
 	 * @param nodeRef
 	 */
-	public void persistMetadata(Metadata metadata, NodeRef nodeRef);
+	void persistMetadata(Metadata metadata, NodeRef nodeRef);
 
 	/**
 	 * Delete the persisted Dropbox Metadata from the Node for the current user.
@@ -92,7 +111,7 @@ public interface DropboxConnector
 	 * @param nodeRef
 	 * @return
 	 */
-	public boolean deletePersistedMetadata(NodeRef nodeRef);
+	boolean deletePersistedMetadata(NodeRef nodeRef);
 
 	/**
 	 * Delete the persisted Dropbox Metadata from the Node for the named user.
@@ -103,7 +122,7 @@ public interface DropboxConnector
 	 * @param userAuthority
 	 * @return
 	 */
-	public boolean deletePersistedMetadata(final NodeRef nodeRef, String userAuthority);
+	boolean deletePersistedMetadata(final NodeRef nodeRef, String userAuthority);
 
 	/**
 	 * Retrieve the file from Drobox from the current users account.
@@ -112,7 +131,7 @@ public interface DropboxConnector
 	 * @param nodeRef
 	 * @return
 	 */
-	public Metadata getFile(NodeRef nodeRef);
+	Metadata getFile(NodeRef nodeRef);
 
 	/**
 	 * Send the node to the current users Dropbox.
@@ -122,7 +141,7 @@ public interface DropboxConnector
 	 * @param overwrite Creates a new file. The new files name is name-<number>.extension
 	 * @return
 	 */
-	public Metadata putFile(NodeRef nodeRef, boolean overwrite);
+	Metadata putFile(NodeRef nodeRef, boolean overwrite);
 
 	/**
 	 * Create folder in the current users Dropbox account.
@@ -131,7 +150,7 @@ public interface DropboxConnector
 	 * @param nodeRef
 	 * @return
 	 */
-	public Metadata createFolder(NodeRef nodeRef);
+	Metadata createFolder(NodeRef nodeRef);
 
 	/**
 	 * Get the Dropbox qualified path to the file for the node
@@ -139,7 +158,7 @@ public interface DropboxConnector
 	 * @param nodeRef
 	 * @return
 	 */
-	public String getDropboxPath(NodeRef nodeRef);
+	String getDropboxPath(NodeRef nodeRef);
 
 	/**
 	 * Is the node synced to Dropbox for the current user.
@@ -147,7 +166,7 @@ public interface DropboxConnector
 	 * @param nodeRef
 	 * @return
 	 */
-	public boolean isSynced(NodeRef nodeRef);
+	boolean isSynced(NodeRef nodeRef);
 
 	/**
 	 * Return map of all users who currently have the node synced to their Dropbox accounts with nodeRef of persisted Metadata
@@ -155,7 +174,7 @@ public interface DropboxConnector
 	 * @param nodeRef
 	 * @return
 	 */
-	public Map<String, NodeRef> getSyncedUsers(NodeRef nodeRef);
+	Map<String, NodeRef> getSyncedUsers(NodeRef nodeRef);
 
 	/**
 	 * Move the file in the current users Dropbox.
@@ -164,7 +183,7 @@ public interface DropboxConnector
 	 * @param newChildAssocRef to Child association reference for node
 	 * @return
 	 */
-	public Metadata move(ChildAssociationRef oldChildAssocRef, ChildAssociationRef newChildAssocRef);
+	Metadata move(ChildAssociationRef oldChildAssocRef, ChildAssociationRef newChildAssocRef);
 
 	/**
 	 * Copy the file in the current users Dropbox
@@ -173,7 +192,7 @@ public interface DropboxConnector
 	 * @param newNodeRef        to the target node location
 	 * @return
 	 */
-	public Metadata copy(NodeRef originalNodeRef, NodeRef newNodeRef);
+	Metadata copy(NodeRef originalNodeRef, NodeRef newNodeRef);
 
 	/**
 	 * Delete the node from the current users Dropbox
@@ -181,7 +200,7 @@ public interface DropboxConnector
 	 * @param nodeRef
 	 * @return
 	 */
-	public Metadata delete(NodeRef nodeRef);
+	Metadata delete(NodeRef nodeRef);
 
 	/**
 	 * Delete the node from the current users Dropbox
@@ -189,6 +208,6 @@ public interface DropboxConnector
 	 * @param path
 	 * @return
 	 */
-	public Metadata delete(String path);
+	Metadata delete(String path);
 
 }

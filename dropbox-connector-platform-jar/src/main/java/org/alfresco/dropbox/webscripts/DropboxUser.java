@@ -20,10 +20,12 @@
 package org.alfresco.dropbox.webscripts;
 
 
-import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxSessionStore;
 import com.dropbox.core.DbxStandardSessionStore;
-import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.users.FullAccount;
+import com.dropbox.core.v2.users.SpaceUsage;
+import com.fikatechnologies.dropbox.DropboxConnector;
+import org.alfresco.dropbox.DropboxConstants;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -31,8 +33,6 @@ import org.alfresco.service.cmr.security.NoSuchPersonException;
 import org.alfresco.service.cmr.security.PersonService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.fikatechnologies.dropbox.DropboxConnector;
-import org.alfresco.dropbox.DropboxConstants;
 import org.springframework.extensions.webscripts.*;
 import org.springframework.extensions.webscripts.servlet.WebScriptServletRuntime;
 
@@ -101,19 +101,18 @@ public class DropboxUser
                 if (Boolean.valueOf(nodeService.getProperty(person, DropboxConstants.Model.PROP_OAUTH_COMPLETE).toString()))
                 {
                     //Changes here
-                    DbxClientV2 profile = dropboxConnector.getClient();
+                    FullAccount profile = dropboxConnector.getUserProfile();
+                    SpaceUsage spaceUsage = dropboxConnector.getUserSpaceUsage();
 
                     model.put(AUTHENTICATED, true);
 
-                    try {
-                        model.put(DISPLAY_NAME, profile.users().getCurrentAccount().getName());
-                        model.put(QUOTA, profile.users().getSpaceUsage().getAllocation().getIndividualValue().getAllocated());
-                        model.put(QUOTA_NORMAL, profile.users().getSpaceUsage().getUsed());
-                        model.put(QUOTA_SHARED, profile.users().getSpaceUsage().getAllocation().getTeamValue().getAllocated());
-                        model.put(EMAIL, profile.users().getCurrentAccount().getEmail());
-                    } catch (DbxException e) {
-                        e.printStackTrace();
-                    }
+
+                    model.put(DISPLAY_NAME, profile.getName());
+                    model.put(QUOTA, spaceUsage.getAllocation().getIndividualValue().getAllocated());
+                    model.put(QUOTA_NORMAL, spaceUsage.getUsed());
+                    model.put(QUOTA_SHARED, spaceUsage.getAllocation().getTeamValue().getAllocated());
+                    model.put(EMAIL, profile.getEmail());
+
                 }
                 else
                 {

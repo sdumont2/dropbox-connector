@@ -54,7 +54,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
 
         <!-- Dropbox Java SDK version -->
-        <dropbox.sdk.version>3.0.2</dropbox.sdk.version>
+        <dropbox.sdk.version>3.0.3</dropbox.sdk.version>
         <ok3Requestor.version>3.8.0</ok3Requestor.version>
     </properties>
 
@@ -415,6 +415,12 @@
         -->
     <repositories>
         <repository>
+            <id>osssonatype</id>
+            <name>OSS Sonatype</name>
+            <url>https://repo1.maven.org/maven2/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
             <id>alfresco-public</id>
             <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
         </repository>
@@ -433,6 +439,12 @@
         </repository>
     </repositories>
     <pluginRepositories>
+        <pluginRepository>
+            <id>osssonatype</id>
+            <name>OSS Sonatype</name>
+            <url>https://repo1.maven.org/maven2/</url>
+            <layout>default</layout>
+        </pluginRepository>
         <pluginRepository>
             <id>alfresco-plugin-public</id>
             <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
