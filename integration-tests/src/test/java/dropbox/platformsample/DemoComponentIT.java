@@ -17,10 +17,11 @@
  */
 package dropbox.platformsample;
 
+import org.alfresco.dropbox.platformsample.DemoComponent;
+import org.alfresco.model.ContentModel;
 import org.alfresco.rad.test.AbstractAlfrescoIT;
 import org.alfresco.rad.test.AlfrescoTestRunner;
 import org.alfresco.rad.test.Remote;
-import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.junit.Test;
 import org.junit.runner.RunWith;

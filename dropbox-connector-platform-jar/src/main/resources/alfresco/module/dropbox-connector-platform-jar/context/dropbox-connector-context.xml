@@ -14,13 +14,9 @@
  
  <!-- Dropbox Connector -->
  
- <bean id="DropboxConnector" class="org.springframework.aop.framework.ProxyFactoryBean">
-   <property name="proxyInterfaces">
-      <value>com.fikatechnologies.dropbox.DropboxConnector</value>
-   </property>
-   <property name="target">
-      <ref bean="dropboxConnector" />
-   </property>
+ <!-- <bean id="DropboxConnector" class="org.springframework.aop.framework.ProxyFactoryBean">
+   <property name="proxyInterfaces" value="com.fikatechnologies.dropbox.DropboxConnector"/>
+   <property name="target" ref="dropboxConnector"/>
    <property name="interceptorNames">
       <list>
             <idref bean="dropboxConnectorReadTxnAdvisor"/>
@@ -98,9 +94,11 @@
             <value>delete</value>
          </list>
        </property>
-   </bean>
+   </bean> -->
     
     <bean id="dropboxConnector" class="com.fikatechnologies.dropbox.impl.DropboxConnectorImpl">
+        <property name="appKey" value="${dropbox.appKey}"/>
+        <property name="appSecret" value="${dropbox.appSecret}"/>
         <property name="personService">
             <ref bean="personService"/>
         </property>
@@ -306,13 +304,13 @@
             <ref bean="dropboxConnector"/>
         </property>
     </bean>
-	
+	<!-- Removed class
 	<bean id="webscript.org.alfresco.dropbox.webscripts.popupCompleteDropboxAuth.get" class="org.alfresco.dropbox.webscripts.PopUpCompleteDropboxAuth" parent="webscript">
         <property name="dropboxConnector">
             <ref bean="dropboxConnector"/>
         </property>
     </bean>
-    
+    -->
     <bean id="webscript.org.alfresco.dropbox.webscripts.DelinkDropboxUser.post" class="org.alfresco.dropbox.webscripts.DelinkDropboxUser" parent="webscript">
         <property name="personService">
             <ref bean="personService"/>

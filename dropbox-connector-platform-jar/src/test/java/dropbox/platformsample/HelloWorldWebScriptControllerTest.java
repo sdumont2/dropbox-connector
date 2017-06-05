@@ -17,9 +17,12 @@
  */
 package dropbox.platformsample;
 
+import org.alfresco.dropbox.platformsample.HelloWorldWebScript;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.extensions.webscripts.*;
+import org.springframework.extensions.webscripts.Cache;
+import org.springframework.extensions.webscripts.Status;
+import org.springframework.extensions.webscripts.WebScriptRequest;
 
 import java.util.Map;
 

@@ -33,8 +33,8 @@
         <!-- Alfresco Platform and Share webapp versions, these are the original Alfresco webapps that will be
              customized and then deployed and run by the tomcat maven plugin when
              executing for example $ mvn clean install alfresco:run -->
-        <alfresco.platform.version>5.1.2</alfresco.platform.version>
-        <alfresco.share.version>5.1.2</alfresco.share.version>
+        <alfresco.platform.version>5.1.g</alfresco.platform.version>
+        <alfresco.share.version>5.1.g</alfresco.share.version>
 
         <!-- Default is to run with a Community edition, change to 'enterprise' if using Enterprise edition -->
         <maven.alfresco.edition>community</maven.alfresco.edition>
@@ -55,6 +55,7 @@
 
         <!-- Dropbox Java SDK version -->
         <dropbox.sdk.version>3.0.2</dropbox.sdk.version>
+        <ok3Requestor.version>3.8.0</ok3Requestor.version>
     </properties>
 
     <!-- Libs used in Unit and Integration tests -->
@@ -101,6 +102,23 @@
             <version>${alfresco.sdk.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Start Fika Dropbox Changes -->
+        <dependency>
+            <groupId>com.dropbox.core</groupId>
+            <artifactId>dropbox-core-sdk</artifactId>
+            <version>${dropbox.sdk.version}</version>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${ok3Requestor.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- End Fika Dropbox changes -->
+
     </dependencies>
 
     <dependencyManagement>
@@ -156,13 +174,21 @@
                 <version>${alfresco.surf.version}</version>
                 <scope>provided</scope>
             </dependency>
-
+            <!-- Start Fika Dropbox Changes -->
             <dependency>
                 <groupId>com.dropbox.core</groupId>
                 <artifactId>dropbox-core-sdk</artifactId>
                 <version>${dropbox.sdk.version}</version>
+                <type>jar</type>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${ok3Requestor.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <!-- End Fika Dropbox changes -->
 
         </dependencies>
     </dependencyManagement>

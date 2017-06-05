@@ -20,11 +20,15 @@
 package com.fikatechnologies.dropbox.impl;
 
 import com.dropbox.core.*;
-import com.dropbox.core.http.OkHttp3Requestor;
 import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.Metadata;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.FolderMetadata;
-import com.dropbox.core.v2.files.Metadata;
+import com.fikatechnologies.dropbox.DropboxConnector;
+import org.alfresco.dropbox.DropboxConstants;
+import org.alfresco.dropbox.exceptions.DropboxClientException;
+import org.alfresco.dropbox.exceptions.FileNotFoundException;
+import org.alfresco.dropbox.exceptions.FileSizeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.repo.policy.BehaviourFilter;
@@ -40,16 +44,8 @@ import org.alfresco.service.cmr.site.SiteService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.fikatechnologies.dropbox.DropboxConnector;
-import org.alfresco.dropbox.DropboxConstants;
-import org.alfresco.dropbox.exceptions.DropboxClientException;
-import org.alfresco.dropbox.exceptions.FileNotFoundException;
-import org.alfresco.dropbox.exceptions.FileSizeException;
 import org.springframework.web.client.RestClientException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.*;
 
@@ -65,15 +61,13 @@ public class DropboxConnectorImpl implements DropboxConnector
 	private AuthorityService authorityService;
 	private SiteService siteService;
 	private BehaviourFilter behaviourFilter;
-	private OAuth2CredentialsStoreService oAuth2CredentialsStoreService;
-	private final String appKey = "a4yx43gwuxvrtsm";
-	private final String appSecret = "mwnu3vea9myezhr";
+	private OAuth2CredentialsStoreService oauth2CredentialsStoreService;
+	private String appKey;
+	private String appSecret;
 
 	private DbxClientV2 client;
 	private final DbxAppInfo dbxAppInfo = new DbxAppInfo(appKey, appSecret);
-	private final DbxRequestConfig dbxRequestConfig = DbxRequestConfig.newBuilder("alfresco/2.0")
-			.withHttpRequestor(new OkHttp3Requestor(OkHttp3Requestor.defaultOkHttpClient()))
-			.build();
+	private final DbxRequestConfig dbxRequestConfig = new DbxRequestConfig("alfresco/2.0");
 	private final DbxWebAuth dbxWebAuth = new DbxWebAuth(dbxRequestConfig, dbxAppInfo);
 
 	@Override
@@ -113,28 +107,8 @@ public class DropboxConnectorImpl implements DropboxConnector
 				DbxAuthFinish authFinish;
 				try {
 					authFinish = dbxWebAuth.finishFromRedirect(callbackUrl, csrfTokenStore, request);
-				} catch (DbxWebAuth.BadRequestException ex) {
-					logger.error("On /dropbox-auth-finish: Bad request: " + ex.getMessage());
-					//response.sendError(400);
-					return false;
-				} catch (DbxWebAuth.BadStateException ex) {
-					// Send them back to the start of the auth flow.
-					//response.sendRedirect("http://my-server.com/dropbox-auth-start");
-					return false;
-				} catch (DbxWebAuth.CsrfException ex) {
-					logger.error("On /dropbox-auth-finish: CSRF mismatch: " + ex.getMessage());
-					//response.sendError(403, "Forbidden.");
-					return false;
-				} catch (DbxWebAuth.NotApprovedException ex) {
-					// When Dropbox asked "Do you want to allow this app to access your
-					// Dropbox account?", the user clicked "No".
-					return false;
-				} catch (DbxWebAuth.ProviderException ex) {
-					logger.error("On /dropbox-auth-finish: Auth failed: " + ex.getMessage());
-					//response.sendError(503, "Error communicating with Dropbox.");
-					return false;
-				} catch (DbxException ex) {
-					logger.error("On /dropbox-auth-finish: Error getting token: " + ex.getMessage());
+				} catch (Exception ex) {
+					logger.error("On /dropbox-auth-finish: Error: " + ex.getMessage());
 					//response.sendError(503, "Error communicating with Dropbox.");
 					return false;
 				}
@@ -151,13 +125,13 @@ public class DropboxConnectorImpl implements DropboxConnector
 	}
 
 	private OAuth2CredentialsInfo getTokenFromUser(){
-		return oAuth2CredentialsStoreService.getPersonalOAuth2Credentials(DropboxConstants.REMOTE_SYSTEM);
+		return oauth2CredentialsStoreService.getPersonalOAuth2Credentials(DropboxConstants.REMOTE_SYSTEM);
 	}
 
 	private void persistTokens(String accessToken, boolean complete){
 		OAuth2CredentialsInfo credsInfo = getTokenFromUser();
 
-		credsInfo = oAuth2CredentialsStoreService.storePersonalOAuth2Credentials(DropboxConstants.REMOTE_SYSTEM, accessToken, null, null, null);
+		credsInfo = oauth2CredentialsStoreService.storePersonalOAuth2Credentials(DropboxConstants.REMOTE_SYSTEM, accessToken, null, null, null);
 
 		if(credsInfo !=null){
 			HashMap<QName, Serializable> properties = new HashMap<>();
@@ -170,22 +144,14 @@ public class DropboxConnectorImpl implements DropboxConnector
 
 	@Override
 	public Metadata getMetadata(NodeRef nodeRef) {
-		String hash = null;
-
-		//get the hash if it exists
-		if(nodeService.getProperty(nodeRef, DropboxConstants.Model.PROP_HASH) != null){
-			hash = nodeService.getProperty(nodeRef, DropboxConstants.Model.PROP_HASH).toString();
-		}
 
 		String path = getDropboxPath(nodeRef) + "/" + nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
-
-		NodeRef person = personService.getPerson(AuthenticationUtil.getRunAsUser());
 
 		Metadata metadata = null;
 		DbxClientV2 clientV2 = this.getClient();
 		try {
 			metadata = clientV2.files().getMetadata(path);
-		} catch (DbxException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -204,7 +170,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 
 		try {
 			metadata = clientV2.files().copy(from_path, to_path);
-		} catch (DbxException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -222,7 +188,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 
 		try {
 			metadata = clientV2.files().createFolder(path);
-		} catch (DbxException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -242,7 +208,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 		{
 			try {
 				metadata = clientV2.files().delete(path);
-			} catch (DbxException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
@@ -272,7 +238,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 		{
 			try {
 				metadata = clientV2.files().delete(path);
-			} catch (DbxException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
@@ -305,7 +271,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 
 		try {
 			metadata = clientV2.files().move(from_path,to_path);
-		} catch (DbxException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -316,7 +282,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 
 	@Override
 	public Metadata getFile(NodeRef nodeRef){
-		Metadata metadata=null;
+		Metadata metadata;
 		DbxClientV2 clientV2 = this.getClient();
 
 		String path = getDropboxPath(nodeRef) + "/" + nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
@@ -324,7 +290,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 		DbxDownloader<FileMetadata> dropboxFile = null;
 		try {
 			dropboxFile = clientV2.files().download(path);
-		} catch (DbxException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try
@@ -359,26 +325,19 @@ public class DropboxConnectorImpl implements DropboxConnector
 
 		ContentReader contentReader = contentService.getReader(nodeRef, ContentModel.PROP_CONTENT);
 
-		try
-		{
-			if (contentReader.getSize() < MAX_FILE_SIZE)
-			{
-				String path = getDropboxPath(nodeRef) + "/" + nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
-				try {
-					metadata = clientV2.files().upload(path).uploadAndFinish(contentReader.getContentInputStream());
-				} catch (DbxException e) {
-					e.printStackTrace();
-				}
-			}
-			else
-			{
-				throw new FileSizeException();
-			}
-		}
-		catch (IOException ioe)
-		{
-			throw new DropboxClientException(ioe.getMessage());
-		}
+		if (contentReader.getSize() < MAX_FILE_SIZE)
+        {
+            String path = getDropboxPath(nodeRef) + "/" + nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
+            try {
+                metadata = clientV2.files().upload(path).uploadAndFinish(contentReader.getContentInputStream());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        else
+        {
+            throw new FileSizeException();
+        }
 
 		logger.debug("Put File " + getDropboxPath(nodeRef) + "/" + nodeService.getProperty(nodeRef, ContentModel.PROP_NAME)
 				+ ". File Metadata " + this.metadataAsJSON(metadata));
@@ -414,7 +373,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 			userAssocRef = usersAssoc.get(0);
 		}
 
-		Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
+		Map<QName, Serializable> properties = new HashMap<>();
 		if(md instanceof FolderMetadata) {
 			if(nodeService.getType(nodeRef).equals(ContentModel.TYPE_FOLDER)){
 				List<ChildAssociationRef> childAssocList= nodeService.getChildAssocs(nodeRef);
@@ -510,14 +469,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 			if (authorityService.isAdminAuthority(AuthenticationUtil.getRunAsUser())
 					|| siteService.getMembersRole(siteInfo.getShortName(), AuthenticationUtil.getRunAsUser()).equals("SiteManager"))
 			{
-				deleted = AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Boolean>()
-				{
-					public Boolean doWork()
-							throws Exception
-					{
-						return deletePersistedMetadata(nodeRef);
-					}
-				}, userAuthority);
+				deleted = AuthenticationUtil.runAs(() -> deletePersistedMetadata(nodeRef), userAuthority);
 			}
 		}
 
@@ -527,8 +479,8 @@ public class DropboxConnectorImpl implements DropboxConnector
 	/**
 	 * All the user metadata for the synched users. User must be Repository Admin or Site Manager.
 	 *
-	 * @param nodeRef
-	 * @return
+	 * @param nodeRef Node ref to check synced users on
+	 * @return syncedUsers
 	 */
 	@Override
 	public Map<String, NodeRef> getSyncedUsers(NodeRef nodeRef)
@@ -549,9 +501,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 
 				if (userAssoc.size() > 0)
 				{
-					for (Iterator<ChildAssociationRef> iterator = userAssoc.iterator(); iterator.hasNext();)
-					{
-						ChildAssociationRef childAssociationRef = iterator.next();
+					for (ChildAssociationRef childAssociationRef : userAssoc) {
 						syncedUsers.put(childAssociationRef.getQName().getLocalName(), childAssociationRef.getChildRef());
 					}
 				}
@@ -564,8 +514,8 @@ public class DropboxConnectorImpl implements DropboxConnector
 	/**
 	 * Is the node synced to Dropbox for the currently authenticated User
 	 *
-	 * @param nodeRef
-	 * @return
+	 * @param nodeRef Node ref to check if is synced to current user
+	 * @return synced
 	 */
 	@Override
 	public boolean isSynced(NodeRef nodeRef)
@@ -595,66 +545,33 @@ public class DropboxConnectorImpl implements DropboxConnector
 	}
 
 	/**
-	 * Is the node synced to Dropbox for the user. Requires Admin or SiteManager role to run
-	 *
-	 * @param nodeRef
-	 * @param userAuthority
-	 * @return
-	 */
-	public boolean isSynced(final NodeRef nodeRef, String userAuthority)
-	{
-		boolean synced = false;
-
-		SiteInfo siteInfo = siteService.getSite(nodeRef);
-		if (siteInfo != null)
-		{
-			if (authorityService.isAdminAuthority(AuthenticationUtil.getRunAsUser())
-					|| siteService.getMembersRole(siteInfo.getShortName(), AuthenticationUtil.getRunAsUser()).equals("SiteManager"))
-			{
-				synced = AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Boolean>()
-				{
-					public Boolean doWork()
-							throws Exception
-					{
-						return isSynced(nodeRef);
-					}
-				}, userAuthority);
-			}
-		}
-
-		return synced;
-	}
-
-	/**
 	 * Total number of users who have the node synced to their Dropbox account. If -1 is returned then the total could not be
 	 * determined.
 	 *
-	 * @param nodeRef
-	 * @return
+	 * @param nodeRef Node Ref to get sync count on
+	 * @return count
 	 */
 	private int getSyncCount(final NodeRef nodeRef){
 		int count = -1;
 
-		AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Integer>() {
-			public Integer doWork() throws Exception{
-				int count = -1;
+		AuthenticationUtil.runAs(() -> {
+            int count1 = -1;
 
-				List<ChildAssociationRef> childAssoc = nodeService.getChildAssocs(nodeRef, DropboxConstants.Model.ASSOC_DROPBOX, DropboxConstants.Model.ASSOC_DROPBOX);
+            List<ChildAssociationRef> childAssoc = nodeService.getChildAssocs(nodeRef, DropboxConstants.Model.ASSOC_DROPBOX, DropboxConstants.Model.ASSOC_DROPBOX);
 
-				if(childAssoc.size() > 0){
-					ChildAssociationRef usersAssocRef = childAssoc.get(0);
+            if(childAssoc.size() > 0){
+                ChildAssociationRef usersAssocRef = childAssoc.get(0);
 
-					Set<QName> childNodeTypeQnames = new HashSet<>();
-					childNodeTypeQnames.add(DropboxConstants.Model.ASSOC_USER_METADATA);
-					List<ChildAssociationRef> userAssoc = nodeService.getChildAssocs(usersAssocRef.getChildRef(), childNodeTypeQnames);
+                Set<QName> childNodeTypeQnames = new HashSet<>();
+                childNodeTypeQnames.add(DropboxConstants.Model.ASSOC_USER_METADATA);
+                List<ChildAssociationRef> userAssoc = nodeService.getChildAssocs(usersAssocRef.getChildRef(), childNodeTypeQnames);
 
-					if(userAssoc.size() >= 0){
-						count = userAssoc.size();
-					}
-				}
-				return count;
-			}
-		}, AuthenticationUtil.getAdminUserName());
+                if(userAssoc.size() >= 0){
+                    count1 = userAssoc.size();
+                }
+            }
+            return count1;
+        }, AuthenticationUtil.getAdminUserName());
 		return count;
 	}
 
@@ -667,22 +584,6 @@ public class DropboxConnectorImpl implements DropboxConnector
 		logger.debug("Path: "+ path);
 
 		return path;
-	}
-
-	private byte[] getBytes(ContentReader reader) throws IOException{
-		InputStream originalInputStream = reader.getContentInputStream();
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-		final int BUF_SIZE = 1 << 8; // 1KiB buffer
-		byte[] buffer = new byte[BUF_SIZE];
-		int bytesRead = -1;
-
-		while((bytesRead = originalInputStream.read(buffer)) > -1){
-			outputStream.write(buffer, 0, bytesRead);
-		}
-
-		originalInputStream.close();
-		return outputStream.toByteArray();
 	}
 
 	private String metadataAsJSON(Metadata metadata){
@@ -701,4 +602,63 @@ public class DropboxConnectorImpl implements DropboxConnector
 		return json;
 	}
 
+	public void setPersonService(PersonService personService)
+	{
+		this.personService = personService;
+	}
+
+
+	public void setNodeService(NodeService nodeService)
+	{
+		this.nodeService = nodeService;
+	}
+
+
+	public void setContentService(ContentService contentService)
+	{
+		this.contentService = contentService;
+	}
+
+
+	public void setPermissionService(PermissionService permissionService)
+	{
+		this.permissionService = permissionService;
+	}
+
+
+	public void setSysAdminParams(SysAdminParams sysAdminParams)
+	{
+		this.sysAdminParams = sysAdminParams;
+	}
+
+
+	public void setAuthorityService(AuthorityService authorityService)
+	{
+		this.authorityService = authorityService;
+	}
+
+
+	public void setSiteService(SiteService siteService)
+	{
+		this.siteService = siteService;
+	}
+
+
+	public void setBehaviourFilter(BehaviourFilter behaviourFilter)
+	{
+		this.behaviourFilter = behaviourFilter;
+	}
+
+	public void setOauth2CredentialsStoreService(OAuth2CredentialsStoreService oauth2CredentialsStoreService)
+	{
+		this.oauth2CredentialsStoreService = oauth2CredentialsStoreService;
+	}
+
+	public void setAppKey(String appKey){
+		this.appKey = appKey;
+	}
+
+	public void setAppSecret(String appSecret){
+		this.appSecret = appSecret;
+	}
 }

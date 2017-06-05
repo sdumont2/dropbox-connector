@@ -19,7 +19,7 @@
  */
 package com.fikatechnologies.dropbox;
 
-import com.dropbox.core.DbxSessionStore;
+import com.dropbox.core.*;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.Metadata;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
