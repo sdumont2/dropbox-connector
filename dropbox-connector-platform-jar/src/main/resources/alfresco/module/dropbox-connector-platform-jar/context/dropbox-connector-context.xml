@@ -315,6 +315,12 @@
         </property>
     </bean>
 
+    <bean id="webscript.org.alfresco.dropbox.webscripts.popupCompleteDropboxAuth.get" class="org.alfresco.dropbox.webscripts.PopUpCompleteDropboxAuth" parent="webscript">
+        <property name="dropboxConnector">
+            <ref bean="dropboxConnector"/>
+        </property>
+    </bean>
+
     <bean id="webscript.org.alfresco.dropbox.webscripts.DelinkDropboxUser.post" class="org.alfresco.dropbox.webscripts.DelinkDropboxUser" parent="webscript">
         <property name="personService">
             <ref bean="personService"/>

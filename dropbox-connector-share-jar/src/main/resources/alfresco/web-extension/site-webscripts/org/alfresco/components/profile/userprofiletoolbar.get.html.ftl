@@ -14,7 +14,7 @@
          <div id="${args.htmlid}-body" class="toolbar userprofile">
 
 
-            <#-- LINKS -->
+            <#-- LINKS  changed to include all other links with the dropbox link appended to the end-->
          <@markup id="links">
          <div class="members-bar-links">
             <#list links as link>

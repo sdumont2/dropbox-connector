@@ -41,15 +41,14 @@ import java.util.Map;
  *
  * @author Jared Ottley
  */
-public class CompleteDropboxAuth
+public class PopUpCompleteDropboxAuth
     extends DeclarativeWebScript
 {
-    private static Log          logger   = LogFactory.getLog(CompleteDropboxAuth.class);
+    private static Log          logger   = LogFactory.getLog(PopUpCompleteDropboxAuth.class);
 
     private DropboxConnector dropboxConnector;
 
-    private static final String CODE = "code";
-    private static final String STATE = "state";
+    private static final String UID = "account_id";
     private static final String CALLBACKURL = "/share/service/dropbox/account/verifier";
 
 
@@ -66,9 +65,9 @@ public class CompleteDropboxAuth
 
         boolean authenticated = false;
 
-        if (req.getParameter(CODE) != null && req.getParameter(STATE) != null)
+        if (req.getParameter(UID) != null)
         {
-            logger.error("Code: " + req.getParameter(CODE)+"  State: "+req.getParameter(STATE));
+            logger.debug("Verifier: " + req.getParameter(UID));
             HttpServletRequest httpReq = WebScriptServletRuntime.getHttpServletRequest(req);
             HttpSession session = httpReq.getSession(true);
             String sessionKey = "dropbox-auth-csrf-token";

@@ -1,7 +1,8 @@
 <webscript>
 	<shortname>Complete Dropbox Account Authentication</shortname>
 	<description>Complete Dropbox Account Authentication</description>
-	<url>/dropbox/account/complete/workflow?verifier={verifier}</url>
+	<!-- Change here to include state so auth doesn't fail -->
+	<url>/dropbox/account/complete/workflow?state={state}&amp;code={code}</url>
 	<lifecycle>internal</lifecycle>
 	<authentication>user</authentication>
 	<format default="json" />

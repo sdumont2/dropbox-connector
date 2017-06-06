@@ -15,12 +15,12 @@ function main()
       var dropbox = eval('(' + result + ')');
       if(dropbox.authenticated){
     	  model.display_name = dropbox.display_name;
-    	  /*model.quota = dropbox.quota;
+    	  model.quota = dropbox.quota;
     	  model.quota_string =  formatSize(dropbox.quota);
     	  model.quota_normal = dropbox.quota_normal;
     	  model.quota_normal_string = formatSize(dropbox.quota_normal);
-    	  model.quota_shared = dropbox.quota_shared;
-    	  model.quota_shared_string = formatSize(dropbox.quota_shared); */
+    	  //model.quota_shared = dropbox.quota_shared;
+    	  //model.quota_shared_string = formatSize(dropbox.quota_shared);
     	  model.email = dropbox.email;
       }
       model.authenticated = dropbox.authenticated;      

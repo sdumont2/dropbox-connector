@@ -100,17 +100,18 @@ public class DropboxUser
             {
                 if (Boolean.valueOf(nodeService.getProperty(person, DropboxConstants.Model.PROP_OAUTH_COMPLETE).toString()))
                 {
-                    //Changes here
+                    //Changes here to account for new ways of getting profile and space allocation information
                     FullAccount profile = dropboxConnector.getUserProfile();
                     SpaceUsage spaceUsage = dropboxConnector.getUserSpaceUsage();
 
                     model.put(AUTHENTICATED, true);
 
 
-                    model.put(DISPLAY_NAME, profile.getName());
+                    model.put(DISPLAY_NAME, profile.getName().getDisplayName());
                     model.put(QUOTA, spaceUsage.getAllocation().getIndividualValue().getAllocated());
                     model.put(QUOTA_NORMAL, spaceUsage.getUsed());
-                    model.put(QUOTA_SHARED, spaceUsage.getAllocation().getTeamValue().getAllocated());
+                    //Commenting out for now
+                    //model.put(QUOTA_SHARED, spaceUsage.getAllocation().getTeamValue().getAllocated());
                     model.put(EMAIL, profile.getEmail());
 
                 }

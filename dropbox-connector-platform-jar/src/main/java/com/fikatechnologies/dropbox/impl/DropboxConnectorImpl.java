@@ -147,6 +147,8 @@ public class DropboxConnectorImpl implements DropboxConnector
 			DbxWebAuth.Request authRequest = DbxWebAuth.newRequestBuilder()
 					.withRedirectUri(callbackUrl, csrfTokenStore).build();
 
+			persistTokens("", false);
+
 			authorizeUrl = dropboxClientFactory.getDbxWebAuth().authorize(authRequest);
 		}
 		return authorizeUrl;
@@ -162,8 +164,30 @@ public class DropboxConnectorImpl implements DropboxConnector
 				DbxAuthFinish authFinish;
 				try {
 					authFinish = dropboxClientFactory.getDbxWebAuth().finishFromRedirect(callbackUrl, csrfTokenStore, request);
-				} catch (Exception ex) {
-					logger.error("On /dropbox-auth-finish: Error: " + ex.getMessage());
+				} catch (DbxWebAuth.BadRequestException ex) {
+					logger.error("On /dropbox-auth-finish: Bad request: " + ex.getMessage());
+					//response.sendError(400);
+					return false;
+				} catch (DbxWebAuth.BadStateException ex) {
+					// Send them back to the start of the auth flow.
+					logger.error("Could node find state: "+ex.getMessage());
+					//response.sendRedirect("http://my-server.com/dropbox-auth-start");
+					return false;
+				} catch (DbxWebAuth.CsrfException ex) {
+					logger.error("On /dropbox-auth-finish: CSRF mismatch: " + ex.getMessage());
+					//response.sendError(403, "Forbidden.");
+					return false;
+				} catch (DbxWebAuth.NotApprovedException ex) {
+					// When Dropbox asked "Do you want to allow this app to access your
+					logger.error("App not approved: "+ ex.getMessage());
+					// Dropbox account?", the user clicked "No".
+					return false;
+				} catch (DbxWebAuth.ProviderException ex) {
+					logger.error("On /dropbox-auth-finish: Auth failed: " + ex.getMessage());
+					//response.sendError(503, "Error communicating with Dropbox.");
+					return false;
+				} catch (DbxException ex) {
+					logger.error("On /dropbox-auth-finish: Error getting token: " + ex.getMessage());
 					//response.sendError(503, "Error communicating with Dropbox.");
 					return false;
 				}

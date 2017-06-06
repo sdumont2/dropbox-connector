@@ -3,7 +3,8 @@
 function main()
 {
    // Call the repo to retrieve dropbox properties
-   var result = remote.call("/dropbox/account/complete/workflow?verifier="+args.code);
+    //Change here to include state in params so auth doesn't fail
+   var result = remote.call("/dropbox/account/complete/workflow?state="+args.state+"&code="+args.code);
 
    if (result.status == 200)
    {
