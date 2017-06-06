@@ -185,6 +185,8 @@ public interface DropboxConnector
 	 */
 	Metadata move(ChildAssociationRef oldChildAssocRef, ChildAssociationRef newChildAssocRef);
 
+	//Unused for now Metadata move(ChildAssociationRef oldChildAssocRef, NodeRef newParentRef);
+
 	/**
 	 * Copy the file in the current users Dropbox
 	 *

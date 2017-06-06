@@ -36,6 +36,7 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.admin.SysAdminParams;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.tenant.TenantService;
 import org.alfresco.service.cmr.oauth2.OAuth2CredentialsStoreService;
 import org.alfresco.service.cmr.remotecredentials.OAuth2CredentialsInfo;
 import org.alfresco.service.cmr.repository.*;
@@ -44,6 +45,7 @@ import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.site.SiteInfo;
 import org.alfresco.service.cmr.site.SiteService;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -66,6 +68,8 @@ public class DropboxConnectorImpl implements DropboxConnector
 	private BehaviourFilter behaviourFilter;
 	private OAuth2CredentialsStoreService oauth2CredentialsStoreService;
 	private DropboxClientFactory dropboxClientFactory;
+	private NamespaceService namespaceService;
+	private TenantService tenantService;
 
 	public void setPersonService(PersonService personService)
 	{
@@ -121,6 +125,14 @@ public class DropboxConnectorImpl implements DropboxConnector
 
 	public void setDropboxClientFactory(DropboxClientFactory dropboxClientFactory){
 		this.dropboxClientFactory = dropboxClientFactory;
+	}
+
+	public void setNamespaceService(NamespaceService namespaceService){
+		this.namespaceService = namespaceService;
+	}
+
+	public void setTenantService(TenantService tenantService){
+		this.tenantService = tenantService;
 	}
 
 	private DbxClientV2 getClient() {
@@ -379,14 +391,23 @@ public class DropboxConnectorImpl implements DropboxConnector
 	public Metadata move(ChildAssociationRef oldChildAssocRef, ChildAssociationRef newChildAssocRef){
 		Metadata metadata = null;
 		DbxClientV2 clientV2 = this.getClient();
+		//TODO Fix path grabbing for this. does not work in certain situations. may need to just resolve the path manually instead of relying on toDisplayPath method
+		//Putting comment on getDropboxPath method too since that's what resolves the paths
+		logger.error("oldref: "+nodeService.getPath(oldChildAssocRef.getParentRef()).toDisplayPath(nodeService, permissionService)+"  child path: "+nodeService.getPath(oldChildAssocRef.getChildRef()).toDisplayPath(nodeService, permissionService));
+		logger.error("olderef prefixed string: "+nodeService.getPath(oldChildAssocRef.getParentRef()).toString()+" childpath: "+nodeService.getPath(oldChildAssocRef.getChildRef()).toString());
+		logger.error("newref: "+nodeService.getPath(newChildAssocRef.getParentRef()).toDisplayPath(nodeService, permissionService)+"  child path: "+nodeService.getPath(newChildAssocRef.getChildRef()).toDisplayPath(nodeService, permissionService));
+		logger.error("olderef prefixed string: "+nodeService.getPath(newChildAssocRef.getParentRef()).toString()+" childpath: "+nodeService.getPath(newChildAssocRef.getChildRef()).toString());
+
 
 		String from_path = getDropboxPath(oldChildAssocRef.getParentRef()) + "/"
 				+ nodeService.getProperty(oldChildAssocRef.getChildRef(), ContentModel.PROP_NAME);
-		String to_path = getDropboxPath(newChildAssocRef.getChildRef()) + "/"
-				+ nodeService.getProperty(newChildAssocRef.getChildRef(), ContentModel.PROP_NAME);
 
+		String to_path = getDropboxPath(newChildAssocRef.getParentRef()) + "/"
+				+ nodeService.getProperty(newChildAssocRef.getChildRef(), ContentModel.PROP_NAME);
+		logger.error("from_path: "+from_path);
+		logger.error("to_path: "+to_path);
 		try {
-			metadata = clientV2.files().move(from_path,to_path);
+			metadata = clientV2.files().move(from_path, to_path);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -395,6 +416,37 @@ public class DropboxConnectorImpl implements DropboxConnector
 
 		return metadata;
 	}
+
+	/*
+	public Metadata move(ChildAssociationRef oldChildAssocRef, NodeRef newParentRef){
+		Metadata metadata = null;
+		DbxClientV2 clientV2 = this.getClient();
+		ChildAssociationRef cs= nodeService.getPrimaryParent(oldChildAssocRef.getChildRef());
+		ChildAssociationRef ps=nodeService.getPrimaryParent(oldChildAssocRef.getParentRef());
+		logger.error("  csref: "+nodeService.getPath(cs.getParentRef()).toDisplayPath(nodeService, permissionService)+"  child path: "+nodeService.getPath(cs.getChildRef()).toDisplayPath(nodeService, permissionService));
+		logger.error("  psref: "+nodeService.getPath(ps.getParentRef()).toDisplayPath(nodeService, permissionService)+"  child path: "+nodeService.getPath(ps.getChildRef()).toDisplayPath(nodeService, permissionService));
+		logger.error("  oldref: "+nodeService.getPath(oldChildAssocRef.getParentRef()).toDisplayPath(nodeService, permissionService)+"  child path: "+nodeService.getPath(oldChildAssocRef.getChildRef()).toDisplayPath(nodeService, permissionService));
+		logger.error("newref: "+nodeService.getPath(newParentRef).toDisplayPath(nodeService, permissionService));
+		//Changing where from path ref comes from since what should be captured isn't,
+		//due to policy implementation. will likely need policy reworked later on, this is a temp fix
+		String from_path = getDropboxPath(oldChildAssocRef.getChildRef()) + "/"
+				+ nodeService.getProperty(oldChildAssocRef.getChildRef(), ContentModel.PROP_NAME);
+
+		String to_path = getDropboxPath(newParentRef) + "/"
+				+ nodeService.getProperty(oldChildAssocRef.getChildRef(), ContentModel.PROP_NAME);
+		logger.error("from_path: "+from_path);
+		logger.error("to_path: "+to_path);
+		try {
+			metadata = clientV2.files().move(from_path, to_path);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		logger.debug("Move " + from_path + " to " + to_path + ". New Metadata: " + this.metadataAsJSON(metadata));
+
+		return metadata;
+	}
+	 */
 
 	@Override
 	public Metadata getFile(NodeRef nodeRef){
@@ -693,8 +745,25 @@ public class DropboxConnectorImpl implements DropboxConnector
 
 	@Override
 	public String getDropboxPath(NodeRef nodeRef){
-		String path = nodeService.getPath(nodeRef).toDisplayPath(nodeService, permissionService);
-		path = path.replaceFirst(DropboxConstants.COMPANY_HOME, sysAdminParams.getShareHost());
+		//TODO Find a different way to get path since this does not always work, when it comes to moving and copying files
+		Iterator<Path.Element> paths = nodeService.getPath(nodeRef).iterator();
+		StringBuilder pathBuilder= new StringBuilder();
+		while(paths.hasNext()){
+			Path.Element pelement = paths.next();
+			if(!pelement.getPrefixedString(namespaceService).equalsIgnoreCase("/")) {
+				QName elementName = QName.createQName(pelement.getPrefixedString(namespaceService), namespaceService);
+				if(!paths.hasNext()){
+					pathBuilder.append(elementName.getLocalName());
+				}else {
+					pathBuilder.append(elementName.getLocalName()).append("/");
+				}
+			}
+		}
+		logger.error("Path is now: "+pathBuilder.toString());
+		String path = pathBuilder.toString();
+		//String path = nodeService.getPath(nodeRef).toDisplayPath(nodeService, permissionService);
+		//path = path.replaceFirst(DropboxConstants.COMPANY_HOME, sysAdminParams.getShareHost());
+		path = path.replaceFirst(DropboxConstants.COMPANY_HOME_LOCAL, sysAdminParams.getShareHost());
 		path = path.replaceFirst(DropboxConstants.DOCUMENTLIBRARY, "");
 
 		logger.debug("Path: "+ path);

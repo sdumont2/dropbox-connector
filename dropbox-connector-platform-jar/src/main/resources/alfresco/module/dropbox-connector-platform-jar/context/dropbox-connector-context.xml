@@ -136,6 +136,12 @@
         <property name="dropboxClientFactory">
             <ref bean="dropboxClientFactory"/>
         </property>
+        <property name="namespaceService">
+            <ref bean="NamespaceService"/>
+        </property>
+        <property name="tenantService">
+            <ref bean="tenantService"/>
+        </property>
     </bean>
 	
  <!-- Property Decorator -->

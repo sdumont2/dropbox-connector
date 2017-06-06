@@ -20,6 +20,7 @@
 package org.alfresco.dropbox;
 
 
+import org.alfresco.model.;
 import org.alfresco.service.namespace.QName;
 
 
@@ -38,6 +39,9 @@ public interface DropboxConstants
      */
 
     public static final String COMPANY_HOME    = "/Company Home";
+    //Adding this for testing Path finding
+
+    public static final String COMPANY_HOME_LOCAL = "company_home";
     public static final String DOCUMENTLIBRARY = "/documentLibrary";
 
     public static final String REMOTE_SYSTEM   = "dropbox";

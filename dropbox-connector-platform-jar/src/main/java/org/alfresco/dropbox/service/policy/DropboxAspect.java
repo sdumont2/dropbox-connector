@@ -16,6 +16,11 @@
 package org.alfresco.dropbox.service.policy;
 
 
+import com.fikatechnologies.dropbox.DropboxConnector;
+import org.alfresco.dropbox.DropboxConstants;
+import org.alfresco.dropbox.service.action.DropboxDeleteAction;
+import org.alfresco.dropbox.service.action.DropboxMoveAction;
+import org.alfresco.dropbox.service.action.DropboxUpdateAction;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.ContentServicePolicies.OnContentUpdatePolicy;
 import org.alfresco.repo.copy.CopyBehaviourCallback;
@@ -35,11 +40,6 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.fikatechnologies.dropbox.DropboxConnector;
-import org.alfresco.dropbox.DropboxConstants;
-import org.alfresco.dropbox.service.action.DropboxDeleteAction;
-import org.alfresco.dropbox.service.action.DropboxMoveAction;
-import org.alfresco.dropbox.service.action.DropboxUpdateAction;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ import java.util.Map;
  * @author Jared Ottley
  */
 public class DropboxAspect
-    implements OnContentUpdatePolicy, OnCreateChildAssociationPolicy, BeforeDeleteNodePolicy, OnCopyNodePolicy, OnMoveNodePolicy
+    implements OnContentUpdatePolicy, OnCreateChildAssociationPolicy, BeforeDeleteNodePolicy, OnCopyNodePolicy, /**/OnMoveNodePolicy //BeforeMoveNodePolicy
 {
 
     private static final Log    log                   = LogFactory.getLog(DropboxAspect.class);
@@ -100,6 +100,7 @@ public class DropboxAspect
         policyComponent.bindClassBehaviour(BeforeDeleteNodePolicy.QNAME, DropboxConstants.Model.ASPECT_DROPBOX, new JavaBehaviour(this, "beforeDeleteNode", NotificationFrequency.FIRST_EVENT));
         policyComponent.bindClassBehaviour(OnCopyNodePolicy.QNAME, DropboxConstants.Model.ASPECT_DROPBOX, new JavaBehaviour(this, "getCopyCallback"));
         policyComponent.bindClassBehaviour(OnMoveNodePolicy.QNAME, DropboxConstants.Model.ASPECT_DROPBOX, new JavaBehaviour(this, "onMoveNode", NotificationFrequency.FIRST_EVENT));
+        //policyComponent.bindClassBehaviour(BeforeMoveNodePolicy.QNAME, DropboxConstants.Model.ASPECT_DROPBOX, new JavaBehaviour(this, "beforeMoveNode", NotificationFrequency.TRANSACTION_COMMIT));
     }
 
 
@@ -168,7 +169,26 @@ public class DropboxAspect
         return new DoNothingCopyBehaviourCallback();
     }
 
+    /*
+    public void beforeMoveNode(ChildAssociationRef oldChildAssocRef, NodeRef newParentRef) {
+        if (!nodeService.hasAspect(oldChildAssocRef.getChildRef(), DropboxConstants.Model.ASPECT_SYNC_IN_PROGRESS))
+        {
+            nodeService.addAspect(oldChildAssocRef.getChildRef(), DropboxConstants.Model.ASPECT_SYNC_IN_PROGRESS, null);
+        }
 
+        Map<String, Serializable> params = new HashMap<String, Serializable>();
+
+        params.put(DropboxMoveAction.DROPBOX_FROM_PATH, oldChildAssocRef);
+        params.put(DropboxMoveAction.DROPBOX_TO_PATH, newParentRef);
+
+        actionService.executeAction(actionService.createAction(DROPBOX_MOVE_ACTION, params), null, false, true);
+
+        log.debug("Dropbox: Moving" + newParentRef.toString() + " and any children");
+    }
+    */
+
+
+    /**/
     public void onMoveNode(ChildAssociationRef oldChildAssocRef, ChildAssociationRef newChildAssocRef)
     {
         if (!nodeService.hasAspect(newChildAssocRef.getChildRef(), DropboxConstants.Model.ASPECT_SYNC_IN_PROGRESS))
@@ -185,5 +205,7 @@ public class DropboxAspect
 
         log.debug("Dropbox: Moving" + newChildAssocRef.getChildRef().toString() + " and any children");
     }
+    /**/
+
 
 }
