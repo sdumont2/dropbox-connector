@@ -25,6 +25,8 @@
        
           <div class="row">
     	Account Name: ${display_name} <br />
+              Quota: ${quota_string} <br />
+              Quota Used: ${quota_normal_string} <br />
       Account Email: ${email} <br />
           </div>
           <hr/>

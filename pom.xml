@@ -322,7 +322,7 @@
                     <!-- We need Share webapp, so we got a UI for working with the Repo -->
                     <enableShare>true</enableShare>
                     <!-- Enable the REST API Explorer -->
-                    <enableApiExplorer>true</enableApiExplorer>
+                    <enableApiExplorer>false</enableApiExplorer>
 
                     <!--
                         JARs and AMPs that should be overlayed/applied to the Platform/Repository WAR
@@ -411,12 +411,6 @@
         -->
     <repositories>
         <repository>
-            <id>osssonatype</id>
-            <name>OSS Sonatype</name>
-            <url>https://repo1.maven.org/maven2/</url>
-            <layout>default</layout>
-        </repository>
-        <repository>
             <id>alfresco-public</id>
             <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
         </repository>
@@ -435,12 +429,6 @@
         </repository>
     </repositories>
     <pluginRepositories>
-        <pluginRepository>
-            <id>osssonatype</id>
-            <name>OSS Sonatype</name>
-            <url>https://repo1.maven.org/maven2/</url>
-            <layout>default</layout>
-        </pluginRepository>
         <pluginRepository>
             <id>alfresco-plugin-public</id>
             <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>

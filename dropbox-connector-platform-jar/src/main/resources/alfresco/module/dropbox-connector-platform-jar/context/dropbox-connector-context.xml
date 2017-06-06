@@ -200,7 +200,7 @@
 	</bean>
 	
 	<!-- Dropbox Poller -->
-	
+	<!-- Disabled for now until polling support is completed
 	<bean id="dropboxPollerImpl" class="org.alfresco.dropbox.service.polling.DropboxPollerImpl">
         <property name="searchService">
             <ref bean="searchService"/>
@@ -242,7 +242,7 @@
         <property name="cronExpression">
             <value>0 0/2 * * * ?</value>
         </property>
-    </bean>
+    </bean> -->
 	
 	<!-- Dropbox Web Scripts -->
     

@@ -699,21 +699,25 @@ public class DropboxConnectorImpl implements DropboxConnector
 
 		logger.debug("Path: "+ path);
 
-		return path;
+		return "/"+path;
 	}
 
 	private String metadataAsJSON(Metadata metadata){
 		String json;
-		if(metadata instanceof FileMetadata) {
-			FileMetadata fileMetadata = (FileMetadata) metadata;
-			json = "{ \"size\": " + fileMetadata.getSize() + ", \"is_dir\": " + false + ", \"is_deleted\": " + false + ", \"rev\": \""
-					+ fileMetadata.getRev() + "\", \"hash\": \"" + fileMetadata.getContentHash() + "\", \"modified\": \""
-					+ fileMetadata.getServerModified() + "\", \"path\": \"" + fileMetadata.getPathDisplay() + "\"}";
-		}else if(metadata instanceof FolderMetadata){
-			FolderMetadata folderMetadata = (FolderMetadata) metadata;
-			json = "{ \"name\": \"" + folderMetadata.getName() + "\", \"path\": \"" + folderMetadata.getPathDisplay() + "\"}";
+		if(metadata!=null) {
+			if (metadata instanceof FileMetadata) {
+				FileMetadata fileMetadata = (FileMetadata) metadata;
+				json = "{ \"size\": " + fileMetadata.getSize() + ", \"is_dir\": " + false + ", \"is_deleted\": " + false + ", \"rev\": \""
+						+ fileMetadata.getRev() + "\", \"hash\": \"" + fileMetadata.getContentHash() + "\", \"modified\": \""
+						+ fileMetadata.getServerModified() + "\", \"path\": \"" + fileMetadata.getPathDisplay() + "\"}";
+			} else if (metadata instanceof FolderMetadata) {
+				FolderMetadata folderMetadata = (FolderMetadata) metadata;
+				json = "{ \"name\": \"" + folderMetadata.getName() + "\", \"path\": \"" + folderMetadata.getPathDisplay() + "\"}";
+			} else {
+				throw new IllegalArgumentException("Metadata supplied was neither folder metadata or file metadata");
+			}
 		}else{
-			throw new IllegalArgumentException("Metadata supplied was neither folder metadata or file metadata");
+			throw new NullPointerException("Metadata was null due to earlier error");
 		}
 		return json;
 	}

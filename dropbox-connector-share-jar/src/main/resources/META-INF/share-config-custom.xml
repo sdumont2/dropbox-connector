@@ -1,7 +1,8 @@
 <alfresco-config>
 	<config evaluator="string-compare" condition="DocLibCustom">
 	   <dependencies>
-	      <js src="/dropbox/components/documentlibrary/actions-min.js" />
+		   <!-- Changed since compressed is not available -->
+	      <js src="/dropbox/components/documentlibrary/actions.js" />
 	   </dependencies>
 	</config>
 	
