@@ -20,7 +20,6 @@
 package org.alfresco.dropbox;
 
 
-import org.alfresco.model.;
 import org.alfresco.service.namespace.QName;
 
 
