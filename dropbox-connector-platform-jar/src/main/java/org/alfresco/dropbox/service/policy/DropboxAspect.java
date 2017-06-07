@@ -18,6 +18,7 @@ package org.alfresco.dropbox.service.policy;
 
 import com.fikatechnologies.dropbox.DropboxConnector;
 import org.alfresco.dropbox.DropboxConstants;
+import org.alfresco.dropbox.service.action.DropboxCopyAction;
 import org.alfresco.dropbox.service.action.DropboxDeleteAction;
 import org.alfresco.dropbox.service.action.DropboxMoveAction;
 import org.alfresco.dropbox.service.action.DropboxUpdateAction;
@@ -26,7 +27,7 @@ import org.alfresco.repo.content.ContentServicePolicies.OnContentUpdatePolicy;
 import org.alfresco.repo.copy.CopyBehaviourCallback;
 import org.alfresco.repo.copy.CopyDetails;
 import org.alfresco.repo.copy.CopyServicePolicies.OnCopyNodePolicy;
-import org.alfresco.repo.copy.DoNothingCopyBehaviourCallback;
+import org.alfresco.repo.copy.DefaultCopyBehaviourCallback;
 import org.alfresco.repo.node.NodeServicePolicies.BeforeDeleteNodePolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnCreateChildAssociationPolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnMoveNodePolicy;
@@ -67,6 +68,7 @@ public class DropboxAspect
     private static final String DROPBOX_UPDATE_ACTION = "dropboxUpdateAction";
     private static final String DROPBOX_DELETE_ACTION = "dropboxDeleteAction";
     private static final String DROPBOX_MOVE_ACTION   = "dropboxMoveAction";
+    private static final String DROPBOX_COPY_ACTION   = "dropboxCopyAction";
 
 
     public void setPolicyComponent(final PolicyComponent policyComponent)
@@ -132,7 +134,7 @@ public class DropboxAspect
         actionService.executeAction(actionService.createAction(DROPBOX_UPDATE_ACTION, params), childAssocRef.getChildRef(), false, true);
 
         log.debug("Dropbox: New child (" + childAssocRef.getChildRef().toString() + ") in Synced Folder"
-                  + childAssocRef.getParentRef().toString() + "will be synced to Dropbox.");
+                  + childAssocRef.getParentRef().toString() + " will be synced to Dropbox.");
     }
 
 
@@ -161,15 +163,31 @@ public class DropboxAspect
      * 
      * @see org.alfresco.repo.copy.CopyServicePolicies.OnCopyNodePolicy#getCopyCallback (org.alfresco.service.namespace.QName,
      * org.alfresco.repo.copy.CopyDetails)
-     */
+     *
     public CopyBehaviourCallback getCopyCallback(QName classRef, CopyDetails copyDetails)
     {
         log.info("Dropbox: Copying " + copyDetails.getSourceNodeRef().toString() + ".  Dropbox aspect will be  removed from copy.");
-        if(copyDetails.isTargetNodeIsNew()){
-            nodeService.removeAspect(copyDetails.getTargetNodeRef(), DropboxConstants.Model.ASPECT_DROPBOX);
-        }
 
         return new DoNothingCopyBehaviourCallback();
+    }*/
+    //Added to handle copying of nodes for dropbox
+    public CopyBehaviourCallback getCopyCallback(QName qName, CopyDetails copyDetails) {
+
+        if(!nodeService.hasAspect(copyDetails.getSourceNodeRef(), DropboxConstants.Model.ASPECT_SYNC_IN_PROGRESS)){
+            nodeService.addAspect(copyDetails.getSourceNodeRef(), DropboxConstants.Model.ASPECT_SYNC_IN_PROGRESS, null);
+        }
+
+        Map<String, Serializable> params = new HashMap<>();
+
+        params.put(DropboxCopyAction.DROPBOX_FROM_PATH, copyDetails.getSourceNodeRef());
+        params.put(DropboxCopyAction.DROPBOX_TO_PATH, copyDetails.getTargetParentNodeRef());
+
+        log.debug("About to enter action");
+
+        actionService.executeAction(actionService.createAction(DROPBOX_COPY_ACTION, params), null, false, true);
+
+        log.debug("Dropbox: Copying: "+copyDetails.getTargetNodeRef().toString() + " and any children");
+        return new DefaultCopyBehaviourCallback();
     }
 
     public void onMoveNode(ChildAssociationRef oldChildAssocRef, ChildAssociationRef newChildAssocRef)
@@ -186,8 +204,7 @@ public class DropboxAspect
 
         actionService.executeAction(actionService.createAction(DROPBOX_MOVE_ACTION, params), null, false, true);
 
-        log.debug("Dropbox: Moving" + newChildAssocRef.getChildRef().toString() + " and any children");
+        log.debug("Dropbox: Moving " + newChildAssocRef.getChildRef().toString() + " and any children");
     }
-
 
 }

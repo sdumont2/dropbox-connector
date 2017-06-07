@@ -204,7 +204,17 @@
 			<ref bean="nodeService"/>
 		</property>
 	</bean>
-	
+
+    <!-- Adding a copy action -->
+    <bean id="dropboxCopyAction" class="org.alfresco.dropbox.service.action.DropboxCopyAction" parent="action-executer">
+        <property name="dropboxConnector">
+            <ref bean="dropboxConnector"/>
+        </property>
+        <property name="nodeService">
+            <ref bean="nodeService"/>
+        </property>
+    </bean>
+
 	<!-- Dropbox Poller -->
 	<!-- Disabled for now until polling support is completed
 	<bean id="dropboxPollerImpl" class="org.alfresco.dropbox.service.polling.DropboxPollerImpl">

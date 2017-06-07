@@ -318,8 +318,21 @@ public class DropboxConnectorImpl implements DropboxConnector
 
 		try {
 			metadata = clientV2.files().createFolder(path);
-		} catch (CreateFolderErrorException e) {
-			e.printStackTrace();
+		} catch (CreateFolderErrorException cfee) {
+			//Added so if the folder creation fails and it's because a folder already exists, just add the metadata
+			if(cfee.errorValue.getPathValue().isConflict()) {
+				WriteConflictError wce = cfee.errorValue.getPathValue().getConflictValue();
+				if(wce.toString().equalsIgnoreCase("folder")){
+					try{
+						metadata = this.getMetadata(nodeRef);
+					}catch (Exception e){
+						e.printStackTrace();
+					}
+				}
+			} else{
+				cfee.printStackTrace();
+			}
+
 		} catch (DbxException e) {
 			e.printStackTrace();
 		}
