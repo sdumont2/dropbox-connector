@@ -21,10 +21,7 @@ package com.fikatechnologies.dropbox.impl;
 
 import com.dropbox.core.*;
 import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.files.FileMetadata;
-import com.dropbox.core.v2.files.FolderMetadata;
-import com.dropbox.core.v2.files.ListFolderResult;
-import com.dropbox.core.v2.files.Metadata;
+import com.dropbox.core.v2.files.*;
 import com.dropbox.core.v2.users.FullAccount;
 import com.dropbox.core.v2.users.SpaceUsage;
 import com.fikatechnologies.dropbox.DropboxConnector;
@@ -273,6 +270,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 	@Override
 	public Metadata getMetadata(NodeRef nodeRef) {
 
+		//Changed due to getDropboxPath method changes
 		String path = getDropboxPath(nodeRef) /*+ "/" + nodeService.getProperty(nodeRef, ContentModel.PROP_NAME)*/;
 
 		Metadata metadata = null;
@@ -293,6 +291,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 		Metadata metadata = null;
 		DbxClientV2 clientV2 = this.getClient();
 
+		//Changed due to getDropboxPath method changes
 		String from_path = getDropboxPath(originalNodeRef) /*+ "/" + nodeService.getProperty(originalNodeRef, ContentModel.PROP_NAME)*/;
 		String to_path = getDropboxPath(newNodeRef) /*+ "/" + nodeService.getProperty(newNodeRef, ContentModel.PROP_NAME)*/;
 
@@ -311,12 +310,17 @@ public class DropboxConnectorImpl implements DropboxConnector
 	public Metadata createFolder(NodeRef nodeRef){
 		Metadata metadata = null;
 		DbxClientV2 clientV2 = this.getClient();
-
+		logger.trace("Normal path: "+nodeService.getPath(nodeRef).toString()+" \nTo Display Path: "
+				+nodeService.getPath(nodeRef).toDisplayPath(nodeService, permissionService)+" \nTo Prefixed Path: "
+				+nodeService.getPath(nodeRef).toPrefixString(namespaceService));
+		//Changed due to getDropboxPath method changes
 		String path = getDropboxPath(nodeRef) /*+ "/" + nodeService.getProperty(nodeRef, ContentModel.PROP_NAME)*/;
 
 		try {
 			metadata = clientV2.files().createFolder(path);
-		} catch (Exception e) {
+		} catch (CreateFolderErrorException e) {
+			e.printStackTrace();
+		} catch (DbxException e) {
 			e.printStackTrace();
 		}
 
@@ -330,7 +334,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 		Metadata metadata = null;
 		DbxClientV2 clientV2 = this.getClient();
 
-		//Removed due to getDropboxPath method changes
+		//Changed due to getDropboxPath method changes
 		String path = getDropboxPath(nodeRef) /*+ "/" + nodeService.getProperty(nodeRef, ContentModel.PROP_NAME)*/;
 
 		try
@@ -416,6 +420,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 		Metadata metadata;
 		DbxClientV2 clientV2 = this.getClient();
 
+		//Changed due to getDropboxPath method changes
 		String path = getDropboxPath(nodeRef) /*+ "/" + nodeService.getProperty(nodeRef, ContentModel.PROP_NAME)*/;
 
 		DbxDownloader<FileMetadata> dropboxFile = null;
@@ -458,6 +463,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 
 		if (contentReader.getSize() < MAX_FILE_SIZE)
         {
+			//Changed due to getDropboxPath method changes
             String path = getDropboxPath(nodeRef) /*+ "/" + nodeService.getProperty(nodeRef, ContentModel.PROP_NAME)*/;
             try {
                 metadata = clientV2.files().upload(path).uploadAndFinish(contentReader.getContentInputStream());
@@ -470,7 +476,7 @@ public class DropboxConnectorImpl implements DropboxConnector
             throw new FileSizeException();
         }
 
-		logger.debug("Put File " + getDropboxPath(nodeRef) + "/" + nodeService.getProperty(nodeRef, ContentModel.PROP_NAME)
+		logger.debug("Put File " + getDropboxPath(nodeRef) /*+ "/" + nodeService.getProperty(nodeRef, ContentModel.PROP_NAME)*/
 				+ ". File Metadata " + this.metadataAsJSON(metadata));
 
 		return metadata;
@@ -507,15 +513,9 @@ public class DropboxConnectorImpl implements DropboxConnector
 		Map<QName, Serializable> properties = new HashMap<>();
 		if(md instanceof FolderMetadata) {
 			if(nodeService.getType(nodeRef).equals(ContentModel.TYPE_FOLDER)){
-				List<ChildAssociationRef> childAssocList= nodeService.getChildAssocs(nodeRef);
-				for (ChildAssociationRef aChildAssocList : childAssocList) {
-					NodeRef childRef = aChildAssocList.getChildRef();
-					Metadata childMetadata = getMetadata(childRef);
-					persistMetadata(childMetadata, childRef);
-				}
+				behaviourFilter.disableBehaviour(userAssocRef.getChildRef(), ContentModel.ASPECT_AUDITABLE);
+				nodeService.addProperties(userAssocRef.getChildRef(), properties);
 			}
-			behaviourFilter.disableBehaviour(userAssocRef.getChildRef(), ContentModel.ASPECT_AUDITABLE);
-			nodeService.addProperties(userAssocRef.getChildRef(), properties);
 		}else if(md instanceof FileMetadata){
 			FileMetadata metadata = (FileMetadata) md;
 			properties.put(DropboxConstants.Model.PROP_REV, metadata.getRev());
@@ -750,7 +750,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 				throw new IllegalArgumentException("Metadata supplied was neither folder metadata or file metadata");
 			}
 		}else{
-			throw new NullPointerException("Metadata was null due to earlier error");
+			throw new NullPointerException(" JSON Metadata was null due to earlier error");
 		}
 		return json;
 	}

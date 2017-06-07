@@ -142,8 +142,9 @@ public class DropboxAspect
         {
             List<String> users = new ArrayList<String>();
             Map<String, Serializable> params = new HashMap<String, Serializable>();
-            params.put(DropboxDeleteAction.DROPBOX_PATH, dropboxConnector.getDropboxPath(nodeRef) + "/"
-                                                         + nodeService.getProperty(nodeRef, ContentModel.PROP_NAME));
+            //Changed due to getDropboxPath method changes
+            params.put(DropboxDeleteAction.DROPBOX_PATH, dropboxConnector.getDropboxPath(nodeRef) /*+ "/"
+                                                         + nodeService.getProperty(nodeRef, ContentModel.PROP_NAME)*/);
             Map<String, NodeRef> syncedUsers = dropboxConnector.getSyncedUsers(nodeRef);
             users.addAll(syncedUsers.keySet());
             params.put(DropboxDeleteAction.DROPBOX_USERS, (Serializable)users);
@@ -164,6 +165,9 @@ public class DropboxAspect
     public CopyBehaviourCallback getCopyCallback(QName classRef, CopyDetails copyDetails)
     {
         log.info("Dropbox: Copying " + copyDetails.getSourceNodeRef().toString() + ".  Dropbox aspect will be  removed from copy.");
+        if(copyDetails.isTargetNodeIsNew()){
+            nodeService.removeAspect(copyDetails.getTargetNodeRef(), DropboxConstants.Model.ASPECT_DROPBOX);
+        }
 
         return new DoNothingCopyBehaviourCallback();
     }

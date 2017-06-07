@@ -122,27 +122,17 @@ public class PostNode
 
             }
         }
-        catch (InvalidNodeRefException inre)
+        catch (InvalidNodeRefException | InvalidTypeException inre)
         {
             throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, inre.getMessage());
-        }
-        catch (InvalidTypeException ite)
-        {
-            throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, ite.getMessage());
-        }
-        catch (FileSizeException fse)
+        } catch (FileSizeException | TooManyFilesException fse)
         {
             throw new WebScriptException(Status.STATUS_NOT_ACCEPTABLE, fse.getMessage());
         }
         catch (NotModifiedException nme)
         {
             throw new WebScriptException(Status.STATUS_NOT_MODIFIED, nme.getMessage());
-        }
-        catch (TooManyFilesException tmfe)
-        {
-            throw new WebScriptException(Status.STATUS_NOT_ACCEPTABLE, tmfe.getMessage());
-        }
-        catch (DropboxClientException dce)
+        } catch (DropboxClientException dce)
         {
             throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, dce.getMessage());
         }
@@ -239,7 +229,7 @@ public class PostNode
 
     private void makeSyncable(NodeRef nodeRef)
     {
-        /** rewriting this. for some reason it was contained to only syncing with Sites.
+        /* rewriting this. for some reason it was contained to only syncing with Sites.
         
         SiteInfo siteInfo = siteService.getSite(nodeRef);
 
