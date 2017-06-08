@@ -175,6 +175,7 @@
 	
 	
 	<!-- Dropbox Actions -->
+
 	<bean id="dropboxUpdateAction" class ="org.alfresco.dropbox.service.action.DropboxUpdateAction" parent="action-executer">
 		<property name="dropboxConnector">
 			<ref bean="dropboxConnector"/>
@@ -205,15 +206,7 @@
 		</property>
 	</bean>
 
-    <!-- Adding a copy action -->
-    <bean id="dropboxCopyAction" class="org.alfresco.dropbox.service.action.DropboxCopyAction" parent="action-executer">
-        <property name="dropboxConnector">
-            <ref bean="dropboxConnector"/>
-        </property>
-        <property name="nodeService">
-            <ref bean="nodeService"/>
-        </property>
-    </bean>
+
 
 	<!-- Dropbox Poller -->
 	<!-- Disabled for now until polling support is completed

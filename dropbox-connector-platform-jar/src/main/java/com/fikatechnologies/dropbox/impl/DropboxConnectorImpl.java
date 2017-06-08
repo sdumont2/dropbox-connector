@@ -293,12 +293,26 @@ public class DropboxConnectorImpl implements DropboxConnector
 
 		//Changed due to getDropboxPath method changes
 		String from_path = getDropboxPath(originalNodeRef) /*+ "/" + nodeService.getProperty(originalNodeRef, ContentModel.PROP_NAME)*/;
-		String to_path = getDropboxPath(newNodeRef) /*+ "/" + nodeService.getProperty(newNodeRef, ContentModel.PROP_NAME)*/;
+		String to_path = getDropboxPath(newNodeRef) /*+ "/" + nodeService.getProperty(originalNodeRef, ContentModel.PROP_NAME)*/;
 
 		try {
-			metadata = clientV2.files().copy(from_path, to_path);
-		} catch (Exception e) {
-			e.printStackTrace();
+			metadata = clientV2.files().copyBuilder(from_path, to_path).withAllowSharedFolder(true).withAutorename(false).start();
+		}catch(RelocationErrorException e){
+			if(e.errorValue.getToValue().isConflict()){
+				if(e.errorValue.getToValue().getConflictValue().toString().equalsIgnoreCase("file")){
+					try{
+						metadata = this.getMetadata(newNodeRef);
+					}catch(Exception ee){
+						ee.printStackTrace();
+					}
+				}else{
+					e.printStackTrace();
+				}
+			}else{
+				e.printStackTrace();
+			}
+		}catch(DbxException dbe){
+			dbe.printStackTrace();
 		}
 
 		logger.debug("Copy " + from_path + " to " + to_path + ". New Metadata: " + this.metadataAsJSON(metadata));

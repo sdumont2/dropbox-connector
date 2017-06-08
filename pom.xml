@@ -115,6 +115,18 @@
             <version>${ok3Requestor.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.alfresco.surf</groupId>
+            <artifactId>spring-webscripts-api</artifactId>
+            <version>6.3</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>1.8.3-alfresco-patched</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- End Fika Dropbox changes -->
 
     </dependencies>
@@ -182,6 +194,18 @@
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
                 <version>${ok3Requestor.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.alfresco.surf</groupId>
+                <artifactId>spring-webscripts-api</artifactId>
+                <version>6.3</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.quartz-scheduler</groupId>
+                <artifactId>quartz</artifactId>
+                <version>1.8.3-alfresco-patched</version>
                 <scope>provided</scope>
             </dependency>
             <!-- End Fika Dropbox changes -->
@@ -344,6 +368,13 @@
                             <version>${project.version}</version>
                         </moduleDependency>
 
+                        <moduleDependency>
+                            <groupId>de.fmaul</groupId>
+                            <artifactId>javascript-console-repo</artifactId>
+                            <version>0.6</version>
+                            <type>amp</type>
+                        </moduleDependency>
+
                         <!-- Bring in the integration tests -->
                         <moduleDependency>
                             <groupId>${project.groupId}</groupId>
@@ -363,6 +394,13 @@
                             <groupId>${project.groupId}</groupId>
                             <artifactId>dropbox-connector-share-jar</artifactId>
                             <version>${project.version}</version>
+                        </moduleDependency>
+
+                        <moduleDependency>
+                            <groupId>de.fmaul</groupId>
+                            <artifactId>javascript-console-share</artifactId>
+                            <version>0.6</version>
+                            <type>amp</type>
                         </moduleDependency>
                     </shareModules>
                 </configuration>

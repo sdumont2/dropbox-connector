@@ -16,9 +16,9 @@
 package org.alfresco.dropbox.service.policy;
 
 
+import com.dropbox.core.v2.files.Metadata;
 import com.fikatechnologies.dropbox.DropboxConnector;
 import org.alfresco.dropbox.DropboxConstants;
-import org.alfresco.dropbox.service.action.DropboxCopyAction;
 import org.alfresco.dropbox.service.action.DropboxDeleteAction;
 import org.alfresco.dropbox.service.action.DropboxMoveAction;
 import org.alfresco.dropbox.service.action.DropboxUpdateAction;
@@ -26,14 +26,16 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.ContentServicePolicies.OnContentUpdatePolicy;
 import org.alfresco.repo.copy.CopyBehaviourCallback;
 import org.alfresco.repo.copy.CopyDetails;
+import org.alfresco.repo.copy.CopyServicePolicies;
 import org.alfresco.repo.copy.CopyServicePolicies.OnCopyNodePolicy;
-import org.alfresco.repo.copy.DefaultCopyBehaviourCallback;
+import org.alfresco.repo.copy.CopyServicePolicies.OnCopyCompletePolicy;
 import org.alfresco.repo.node.NodeServicePolicies.BeforeDeleteNodePolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnCreateChildAssociationPolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnMoveNodePolicy;
 import org.alfresco.repo.policy.Behaviour.NotificationFrequency;
 import org.alfresco.repo.policy.JavaBehaviour;
 import org.alfresco.repo.policy.PolicyComponent;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -43,10 +45,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -55,21 +54,19 @@ import java.util.Map;
  * @author Jared Ottley
  */
 public class DropboxAspect
-    implements OnContentUpdatePolicy, OnCreateChildAssociationPolicy, BeforeDeleteNodePolicy, OnCopyNodePolicy, OnMoveNodePolicy
+    implements OnContentUpdatePolicy, OnCreateChildAssociationPolicy, BeforeDeleteNodePolicy, OnCopyNodePolicy, OnMoveNodePolicy, OnCopyCompletePolicy
 {
 
-    private static final Log    log                   = LogFactory.getLog(DropboxAspect.class);
+    private static final Log    logger                   = LogFactory.getLog(DropboxAspect.class);
 
     private PolicyComponent     policyComponent;
     private NodeService         nodeService;
     private ActionService       actionService;
-    private DropboxConnector dropboxConnector;
+    private DropboxConnector    dropboxConnector;
 
     private static final String DROPBOX_UPDATE_ACTION = "dropboxUpdateAction";
     private static final String DROPBOX_DELETE_ACTION = "dropboxDeleteAction";
     private static final String DROPBOX_MOVE_ACTION   = "dropboxMoveAction";
-    private static final String DROPBOX_COPY_ACTION   = "dropboxCopyAction";
-
 
     public void setPolicyComponent(final PolicyComponent policyComponent)
     {
@@ -100,9 +97,51 @@ public class DropboxAspect
         policyComponent.bindClassBehaviour(OnContentUpdatePolicy.QNAME, DropboxConstants.Model.ASPECT_DROPBOX, new JavaBehaviour(this, "onContentUpdate", NotificationFrequency.TRANSACTION_COMMIT));
         policyComponent.bindAssociationBehaviour(OnCreateChildAssociationPolicy.QNAME, DropboxConstants.Model.ASPECT_DROPBOX, ContentModel.ASSOC_CONTAINS, new JavaBehaviour(this, "onCreateChildAssociation", NotificationFrequency.TRANSACTION_COMMIT));
         policyComponent.bindClassBehaviour(BeforeDeleteNodePolicy.QNAME, DropboxConstants.Model.ASPECT_DROPBOX, new JavaBehaviour(this, "beforeDeleteNode", NotificationFrequency.FIRST_EVENT));
-        policyComponent.bindClassBehaviour(OnCopyNodePolicy.QNAME, DropboxConstants.Model.ASPECT_DROPBOX, new JavaBehaviour(this, "getCopyCallback"));
+        policyComponent.bindClassBehaviour(OnCopyNodePolicy.QNAME, DropboxConstants.Model.ASPECT_SYNCABLE, new JavaBehaviour(this, "getCopyCallback"));
+        policyComponent.bindClassBehaviour(CopyServicePolicies.OnCopyCompletePolicy.QNAME, DropboxConstants.Model.ASPECT_DROPBOX, new JavaBehaviour(this, "onCopyComplete", NotificationFrequency.FIRST_EVENT));
         policyComponent.bindClassBehaviour(OnMoveNodePolicy.QNAME, DropboxConstants.Model.ASPECT_DROPBOX, new JavaBehaviour(this, "onMoveNode", NotificationFrequency.FIRST_EVENT));
     }
+
+    //Added to handle copying of nodes for dropbox
+    public CopyBehaviourCallback getCopyCallback(QName qName, CopyDetails copyDetails) {
+        return new DropboxAspectCopyBehaviourCallback(DropboxConstants.Model.ASPECT_DROPBOX, DropboxConstants.Model.ASPECT_SYNCABLE);
+    }
+
+    //
+    public void onCopyComplete(QName classRef, NodeRef sourceNodeRef, NodeRef targetNodeRef, boolean copyToNewNode, Map<NodeRef, NodeRef> copyMap) {
+        logger.debug("In here now");
+        if(!nodeService.hasAspect(targetNodeRef, DropboxConstants.Model.ASPECT_SYNC_IN_PROGRESS)){
+            nodeService.addAspect(targetNodeRef, DropboxConstants.Model.ASPECT_SYNC_IN_PROGRESS, null);
+        }
+
+        //Adding this since a "Copy" action will not work
+        Map<String, NodeRef> syncedUsers = dropboxConnector.getSyncedUsers(sourceNodeRef);
+
+        for (final Map.Entry<String, NodeRef> syncedUser : syncedUsers.entrySet())
+        {
+            AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Metadata>()
+            {
+                public Metadata doWork()
+                        throws Exception
+                {
+                    Metadata metadata = dropboxConnector.copy(sourceNodeRef, targetNodeRef);
+                    dropboxConnector.persistMetadata(metadata, (targetNodeRef));
+
+                    logger.debug("Dropbox: Copied from "
+                            + sourceNodeRef.toString() + " to "
+                            + targetNodeRef.toString());
+
+                    if (nodeService.hasAspect(targetNodeRef, DropboxConstants.Model.ASPECT_SYNC_IN_PROGRESS))
+                    {
+                        nodeService.removeAspect(targetNodeRef, DropboxConstants.Model.ASPECT_SYNC_IN_PROGRESS);
+                    }
+
+                    return metadata;
+                }
+            }, syncedUser.getKey());
+        }
+
+    }//*/
 
 
     public void onContentUpdate(NodeRef nodeRef, boolean newContent)
@@ -116,7 +155,7 @@ public class DropboxAspect
 
             actionService.executeAction(actionService.createAction(DROPBOX_UPDATE_ACTION), nodeRef, false, true);
 
-            log.debug("Dropbox: Updating " + nodeRef.toString() + "in Dropbox");
+            logger.debug("Dropbox: Updating " + nodeRef.toString() + "in Dropbox");
         }
     }
 
@@ -133,7 +172,7 @@ public class DropboxAspect
 
         actionService.executeAction(actionService.createAction(DROPBOX_UPDATE_ACTION, params), childAssocRef.getChildRef(), false, true);
 
-        log.debug("Dropbox: New child (" + childAssocRef.getChildRef().toString() + ") in Synced Folder"
+        logger.debug("Dropbox: New child (" + childAssocRef.getChildRef().toString() + ") in Synced Folder"
                   + childAssocRef.getParentRef().toString() + " will be synced to Dropbox.");
     }
 
@@ -153,41 +192,8 @@ public class DropboxAspect
 
             actionService.executeAction(actionService.createAction(DROPBOX_DELETE_ACTION, params), nodeRef, false, true);
 
-            log.debug("Dropbox: Deleting " + nodeRef.toString() + " from Dropbox.");
+            logger.debug("Dropbox: Deleting " + nodeRef.toString() + " from Dropbox.");
         }
-    }
-
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.alfresco.repo.copy.CopyServicePolicies.OnCopyNodePolicy#getCopyCallback (org.alfresco.service.namespace.QName,
-     * org.alfresco.repo.copy.CopyDetails)
-     *
-    public CopyBehaviourCallback getCopyCallback(QName classRef, CopyDetails copyDetails)
-    {
-        log.info("Dropbox: Copying " + copyDetails.getSourceNodeRef().toString() + ".  Dropbox aspect will be  removed from copy.");
-
-        return new DoNothingCopyBehaviourCallback();
-    }*/
-    //Added to handle copying of nodes for dropbox
-    public CopyBehaviourCallback getCopyCallback(QName qName, CopyDetails copyDetails) {
-
-        if(!nodeService.hasAspect(copyDetails.getSourceNodeRef(), DropboxConstants.Model.ASPECT_SYNC_IN_PROGRESS)){
-            nodeService.addAspect(copyDetails.getSourceNodeRef(), DropboxConstants.Model.ASPECT_SYNC_IN_PROGRESS, null);
-        }
-
-        Map<String, Serializable> params = new HashMap<>();
-
-        params.put(DropboxCopyAction.DROPBOX_FROM_PATH, copyDetails.getSourceNodeRef());
-        params.put(DropboxCopyAction.DROPBOX_TO_PATH, copyDetails.getTargetParentNodeRef());
-
-        log.debug("About to enter action");
-
-        actionService.executeAction(actionService.createAction(DROPBOX_COPY_ACTION, params), null, false, true);
-
-        log.debug("Dropbox: Copying: "+copyDetails.getTargetNodeRef().toString() + " and any children");
-        return new DefaultCopyBehaviourCallback();
     }
 
     public void onMoveNode(ChildAssociationRef oldChildAssocRef, ChildAssociationRef newChildAssocRef)
@@ -204,7 +210,7 @@ public class DropboxAspect
 
         actionService.executeAction(actionService.createAction(DROPBOX_MOVE_ACTION, params), null, false, true);
 
-        log.debug("Dropbox: Moving " + newChildAssocRef.getChildRef().toString() + " and any children");
+        logger.debug("Dropbox: Moving " + newChildAssocRef.getChildRef().toString() + " and any children");
     }
 
 }
