@@ -43,6 +43,8 @@ import java.util.regex.Matcher;
 
 
 /**
+ * Change to reflect change in Metadata class and updated API calls which distinguish between content types
+ *
  * @author Jared Ottley
  */
 public class GetNode

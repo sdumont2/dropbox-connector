@@ -24,6 +24,8 @@ import org.alfresco.service.namespace.QName;
 
 
 /**
+ *
+ *
  * @author Jared Ottley 
  * 
  * All Constants need for Dropbox: Application type, REST APIs
@@ -38,8 +40,8 @@ public interface DropboxConstants
      */
 
     public static final String COMPANY_HOME    = "/Company Home";
-    //Adding this for testing Path finding
 
+    //This variable added to reflect change for dropboxpath method
     public static final String COMPANY_HOME_LOCAL = "company_home";
     public static final String DOCUMENTLIBRARY = "/documentLibrary";
 

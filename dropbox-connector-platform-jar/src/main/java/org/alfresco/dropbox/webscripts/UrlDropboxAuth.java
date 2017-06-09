@@ -32,7 +32,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ * Change to update from dropbox service class to dropbox connector class
+ * Change to update auth
  *
  * @author Jared Ottley
  */

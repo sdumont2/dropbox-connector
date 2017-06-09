@@ -37,7 +37,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ * Change to update from dropbox service class to dropbox connector class
+ * Also to update for Authentication method to include state and code, so auth will succeed
  *
  * @author Jared Ottley
  */

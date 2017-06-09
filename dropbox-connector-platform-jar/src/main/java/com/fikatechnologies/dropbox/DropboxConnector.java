@@ -32,16 +32,18 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- *
- *
+ * Any unnoted changes were to update code for usability with a new/different sdk
+ * @author Sean Dumont
+ * Original author of the DropboxService interface and class noted below
+ * (DropboxConnector is new name based on significant amount of changes to implementing class).
  * @author Jared Ottley
  */
 public interface DropboxConnector
 {
 
 	/**
-	 * Get the oAuth1 Authorization Url for the current user
-	 *
+	 * Get the oAuth2 Authorization Url for the current user
+	 *	Changed to support Oauth2 and dropbox java sdk
 	 * @param callbackUrl
 	 * @param csrfTokenStore
 	 * @return
@@ -50,7 +52,7 @@ public interface DropboxConnector
 
 	/**
 	 * Complete the oAuth2 Flow. Persists the returned tokens for the current User
-	 *
+	 *	Changed to support Oauth2 and dropbox java sdk
 	 * @param callbackUrl
 	 * @param csrfTokenStore
 	 * @param request
@@ -59,19 +61,19 @@ public interface DropboxConnector
 	boolean completeAuthentication(String callbackUrl, DbxSessionStore csrfTokenStore, Map<String, String[]> request);
 
 	/**
-	 *
+	 *	Changed return type to support dropbox java sdk
 	 * @return fullAccount
 	 */
 	FullAccount getUserProfile();
 
 	/**
-	 *
+	 *	Added to support dropbox java sdk
 	 * @return spaceUsage
 	 */
 	SpaceUsage getUserSpaceUsage();
 
 	/**
-	 *
+	 *	Changed return type to support dropbox java sdk
 	 * @param path
 	 * @return listFolderResult
 	 */

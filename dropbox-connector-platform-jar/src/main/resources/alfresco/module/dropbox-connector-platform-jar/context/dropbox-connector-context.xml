@@ -12,6 +12,7 @@
         </property>
     </bean>
 
+    <!-- Changes here to update from dropboxservice to dropbox connector, also to include ability to set the app key and app secret through global properties -->
     <bean id="dropboxClientFactory" class="com.fikatechnologies.dropbox.impl.DropboxClientFactory">
         <constructor-arg value="${dropbox.appKey}"/>
         <constructor-arg value="${dropbox.appSecret}"/>

@@ -42,7 +42,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ * Change to update from dropbox service class to dropbox connector class
+ * Change to remove support for "team accounts", for now. Additional changes will be needed to support that
  *
  * @author Jared Ottley
  */

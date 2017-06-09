@@ -35,7 +35,7 @@ import org.alfresco.dropbox.exceptions.FileNotFoundException;
 import java.util.List;
 
 /**
- * 
+ * Change to update from dropbox service class to dropbox connector class
  *
  * @author Jared Ottley
  */

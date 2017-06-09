@@ -44,6 +44,8 @@ import java.util.Map;
 
 
 /**
+ * Changes to support more than just sites, and to support new Metadata changes
+ * original author below
  * @author Jared Ottley
  */
 public class PostNode

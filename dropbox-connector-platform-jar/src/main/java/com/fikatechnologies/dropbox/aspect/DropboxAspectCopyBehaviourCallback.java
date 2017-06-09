@@ -1,4 +1,18 @@
-package org.alfresco.dropbox.service.policy;
+/*
+ * Copyright 2011-2012 Alfresco Software Limited.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS"
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
+ * governing permissions and limitations under the License.
+ *
+ * This file is part of an unsupported extension to Alfresco.
+ */
+package com.fikatechnologies.dropbox.aspect;
 
 import org.alfresco.repo.copy.CompoundCopyBehaviourCallback;
 import org.alfresco.repo.copy.CopyBehaviourCallback;
@@ -14,15 +28,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-class DropboxAspectCopyBehaviourCallback extends CompoundCopyBehaviourCallback {
+//Created to avoid errors when copying Syncable Aspect and changed debugging to trace so it doesn't clog up logs
+public class DropboxAspectCopyBehaviourCallback extends CompoundCopyBehaviourCallback {
     private Log logger = LogFactory.getLog(DropboxAspectCopyBehaviourCallback.class);
 
     private QName classQName;
     private QName additionalQName;
     private List<CopyBehaviourCallback> callbacks;
 
-    DropboxAspectCopyBehaviourCallback(QName classQName, QName additionalQName) {
+    public DropboxAspectCopyBehaviourCallback(QName classQName, QName additionalQName) {
         super(classQName);
         this.classQName = classQName;
         this.additionalQName = additionalQName;
@@ -90,9 +104,9 @@ class DropboxAspectCopyBehaviourCallback extends CompoundCopyBehaviourCallback {
         Pair<AssocCopySourceAction, AssocCopyTargetAction> bestAction =
                 new Pair<AssocCopySourceAction, AssocCopyTargetAction>(bestSourceAction, bestTargetAction);
         // Done
-        if (logger.isDebugEnabled())
+        if (logger.isTraceEnabled())
         {
-            logger.debug(
+            logger.trace(
                     "Association copy behaviour: " + bestAction + "\n" +
                             "   " + assocCopyDetails + "\n" +
                             "   " + copyDetails + "\n" +
@@ -163,9 +177,9 @@ class DropboxAspectCopyBehaviourCallback extends CompoundCopyBehaviourCallback {
         if (firstVeto == null)
         {
             // Allowed by all
-            if (logger.isDebugEnabled())
+            if (logger.isTraceEnabled())
             {
-                logger.debug(
+                logger.trace(
                         "All copy behaviours voted for a copy of node \n" +
                                 "   " + copyDetails + "\n" +
                                 "   " + this);
@@ -175,9 +189,9 @@ class DropboxAspectCopyBehaviourCallback extends CompoundCopyBehaviourCallback {
         else
         {
             // Vetoed
-            if (logger.isDebugEnabled())
+            if (logger.isTraceEnabled())
             {
-                logger.debug(
+                logger.trace(
                         "Copy behaviour vetoed for node " + copyDetails.getSourceNodeRef() + "\n" +
                                 "   First veto: " + firstVeto.getClass().getName() + "\n" +
                                 "   " + copyDetails + "\n" +
@@ -232,9 +246,9 @@ class DropboxAspectCopyBehaviourCallback extends CompoundCopyBehaviourCallback {
             }
         }
         // Done
-        if (logger.isDebugEnabled())
+        if (logger.isTraceEnabled())
         {
-            logger.debug(
+            logger.trace(
                     "Child association copy behaviour: " + bestAction + "\n" +
                             "   " + childAssocCopyDetails + "\n" +
                             "   " + copyDetails + "\n" +
@@ -286,9 +300,9 @@ class DropboxAspectCopyBehaviourCallback extends CompoundCopyBehaviourCallback {
             }
         }
         // Done
-        if (logger.isDebugEnabled())
+        if (logger.isTraceEnabled())
         {
-            logger.debug(
+            logger.trace(
                     "Child association recursion behaviour: " + bestAction + "\n" +
                             "   " + childAssocCopyDetails + "\n" +
                             "   " + copyDetails + "\n" +
@@ -350,9 +364,9 @@ class DropboxAspectCopyBehaviourCallback extends CompoundCopyBehaviourCallback {
         }
         copyProperties.putAll(moreProps);
         // Done
-        if (logger.isDebugEnabled())
+        if (logger.isTraceEnabled())
         {
-            logger.debug(
+            logger.trace(
                     "Copy properties: \n" +
                             "   " + copyDetails + "\n" +
                             "   " + this + "\n" +

@@ -20,11 +20,6 @@
 package org.alfresco.dropbox.webscripts;
 
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.alfresco.dropbox.DropboxConstants;
 import org.alfresco.dropbox.exceptions.FileNotFoundException;
 import org.alfresco.model.ContentModel;
@@ -36,8 +31,15 @@ import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 
 /**
+ * Change to update from dropbox service class to dropbox connector class
+ *
  * Recursive delete and removal off dropbox aspect.
  * 
  * TODO is it better to remove once from dropbox and then walk the folder 

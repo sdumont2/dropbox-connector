@@ -51,6 +51,13 @@ import org.springframework.web.client.RestClientException;
 import java.io.Serializable;
 import java.util.*;
 
+/**
+ * @author Sean Dumont
+ * Changes made to update to the Dropbox provided SDK which support v2 of the API and oauth2 support.
+ * Name change to reflect the significant changes to the class and methods, though most method names are the same to reduce impact to overall code
+ * Original Author of DropboxServiceImpl below
+ * @author Jared Ottley
+ */
 public class DropboxConnectorImpl implements DropboxConnector
 {
 	private static Log logger = LogFactory.getLog(DropboxConnectorImpl.class);

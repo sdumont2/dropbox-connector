@@ -36,7 +36,8 @@ import java.util.Map;
 
 
 /**
- * 
+ *  Change to update from dropbox service class to dropbox connector class
+ *
  * 
  * @author Jared Ottley
  */
