@@ -3,8 +3,13 @@
 This is built on an All-In-One (AIO) project for Alfresco SDK 3.0. 
 
 Run project with `mvn clean install -DskipTests=true alfresco:run` or `./run.sh` and verify that it runs.
+
+This project was built with the intention of extending an existing
+ integration with Dropbox that due to limitations of the project, 
+ could no longer function in any capacity (Dropbox's v1 API 
+ was retired and the original project was built off of an sdk that utilized v1 endpoints).   
  
-# Few things to notice
+# Important To Note
 
  * Runs using Community assets (**Must** use Alfresco Community 4.0 or higher)
  * Can use Enterprise as well, just needs changes in the main project pom file
@@ -18,6 +23,7 @@ Run project with `mvn clean install -DskipTests=true alfresco:run` or `./run.sh`
   * Extensive testing
   * Dropbox "App" it is connected to needs to be put to "Production"
   * Clean up/Polish code and remove unused classes
+  * Enhance Readme to include a breakdown of features
   
  
 Licensed under the Apache License 2.0   
