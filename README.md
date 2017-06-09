@@ -11,7 +11,7 @@ This project was built with the intention of extending an existing
  
 # Important To Note
 
- * Runs using Community assets (**Must** use Alfresco Community 4.0 or higher)
+ * Runs using Community assets (**Must** use Alfresco Community 4.2 or higher)
  * Can use Enterprise as well, just needs changes in the main project pom file
  * Does not yet actively check for updates between Alfresco and Dropbox (needs to be manually updated from Alfresco using document actions) 
  * Uses [Dropbox's Java SDK](https://www.dropbox.com/developers/documentation/java) to connect and make API calls
