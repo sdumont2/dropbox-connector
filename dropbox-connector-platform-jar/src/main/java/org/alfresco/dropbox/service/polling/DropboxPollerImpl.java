@@ -19,6 +19,9 @@ package org.alfresco.dropbox.service.polling;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.FolderMetadata;
 import com.dropbox.core.v2.files.Metadata;
+import com.fikatechnologies.dropbox.DropboxConnector;
+import org.alfresco.dropbox.DropboxConstants;
+import org.alfresco.dropbox.exceptions.NotModifiedException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -30,9 +33,6 @@ import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.transaction.TransactionService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.fikatechnologies.dropbox.DropboxConnector;
-import org.alfresco.dropbox.DropboxConstants;
-import org.alfresco.dropbox.exceptions.NotModifiedException;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 
@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
 
 
 /**
@@ -167,12 +168,15 @@ public class DropboxPollerImpl
                                                     Metadata metadata = dropboxConnector.getMetadata(folder);
 
                                                     // Get the list of the content returned.
-                                                    // TODO: Make listFolder method in API for this
-                                                    /*List<Metadata> list = metadata.getContents();
+                                                    // Changes for new API
+                                                    //List<Metadata> list = metadata.getContents();
+                                                    List<Metadata> list = dropboxConnector.getSpace(dropboxConnector.getDropboxPath(folder)).getEntries();
 
                                                     for (Metadata child : list)
                                                     {
-                                                        String name = child.getPathDisplay().replaceAll(Matcher.quoteReplacement(metadata.getPath()
+                                                        //TODO Make a reverse method from the getDropboxPath, and make a getAlfrescoPath method.
+                                                        //TODO See if this works as is first
+                                                        String name = child.getPathDisplay().replaceAll(Matcher.quoteReplacement(metadata.getPathDisplay()
                                                                                                                           + "/"), "");
 
                                                         NodeRef childNodeRef = fileFolderService.searchSimple(folder, name);
@@ -185,7 +189,7 @@ public class DropboxPollerImpl
                                                         {
                                                             updateNode(childNodeRef, child);
                                                         }
-                                                    }*/
+                                                    }
 
                                                     metadata = dropboxConnector.getMetadata(folder);
 
@@ -258,13 +262,17 @@ public class DropboxPollerImpl
                                         Metadata metadata = dropboxConnector.getMetadata(folder);
 
                                         // Get the list of the content returned.
-                                        //TODO LIST FOLDER
-                                        /*List<Metadata> list = metadata.getContents();
+                                        // Changes for new API here
+                                        //List<Metadata> list = metadata.getContents();
+
+                                        List<Metadata> list = dropboxConnector.getSpace(dropboxConnector.getDropboxPath(folder)).getEntries();
 
                                         for (Metadata child : list)
                                         {
-                                            String name = child.getPathDisplay().replaceAll(Matcher.quoteReplacement(metadata.getPath()
-                                                                                                              + "/"), "");
+                                            //TODO Make a reverse method from the getDropboxPath, and make a getAlfrescoPath method.
+                                            //TODO See if this works as is first
+                                            String name = child.getPathDisplay().replaceAll(Matcher.quoteReplacement(metadata.getPathDisplay()
+                                                    + "/"), "");
 
                                             NodeRef childNodeRef = fileFolderService.searchSimple(folder, name);
 
@@ -276,7 +284,7 @@ public class DropboxPollerImpl
                                             {
                                                 updateNode(childNodeRef, child);
                                             }
-                                        }*/
+                                        }
 
                                         metadata = dropboxConnector.getMetadata(folder);
 
@@ -544,12 +552,16 @@ public class DropboxPollerImpl
                                 Metadata metadata = dropboxConnector.getMetadata(nodeRef);
 
                                 // Get the list of the content returned.
-                                //TODO FOLDER CONTENTS
-                                /*List<Metadata> list = metadata.getContents();
+                                // Changes for new API
+                                //List<Metadata> list = metadata.getContents();
+                                List<Metadata> list = dropboxConnector.getSpace(dropboxConnector.getDropboxPath(nodeRef)).getEntries();
 
                                 for (Metadata child : list)
                                 {
-                                    String name = child.getPath().replaceAll(Matcher.quoteReplacement(metadata.getPath() + "/"), "");
+                                    //TODO Make a reverse method from the getDropboxPath, and make a getAlfrescoPath method.
+                                    //TODO See if this works as is first
+                                    String name = child.getPathDisplay().replaceAll(Matcher.quoteReplacement(metadata.getPathDisplay()
+                                            + "/"), "");
 
                                     NodeRef childNodeRef = fileFolderService.searchSimple(nodeRef, name);
 
@@ -561,7 +573,7 @@ public class DropboxPollerImpl
                                     {
                                         updateNode(childNodeRef, child);
                                     }
-                                }*/
+                                }
 
                                 metadata = dropboxConnector.getMetadata(nodeRef);
 
@@ -637,14 +649,20 @@ public class DropboxPollerImpl
 
                             Metadata metadata = dropboxConnector.getMetadata(nodeRef);
 
-                            /*List<Metadata> list = metadata.getContents();
+                            // Get the list of the content returned.
+                            // Changes for new API
+                            //List<Metadata> list = metadata.getContents();
+                            List<Metadata> list = dropboxConnector.getSpace(dropboxConnector.getDropboxPath(nodeRef)).getEntries();
 
                             for (Metadata child : list)
                             {
-                                String name = child.getPath().replaceAll(Matcher.quoteReplacement(metadata.getPath() + "/"), "");
+                                //TODO Make a reverse method from the getDropboxPath, and make a getAlfrescoPath method.
+                                //TODO See if this works as is first
+                                String name = child.getPathDisplay().replaceAll(Matcher.quoteReplacement(metadata.getPathDisplay()
+                                        + "/"), "");
 
                                 addNode(nodeRef, child, name);
-                            }*/
+                            }
 
                             return nodeRef;
                         }

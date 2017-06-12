@@ -127,6 +127,11 @@
             <version>1.8.3-alfresco-patched</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>jmimemagic</groupId>
+            <artifactId>jmimemagic</artifactId>
+            <version>0.1.2</version>
+        </dependency>
         <!-- End Fika Dropbox changes -->
 
     </dependencies>
@@ -207,6 +212,11 @@
                 <artifactId>quartz</artifactId>
                 <version>1.8.3-alfresco-patched</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>jmimemagic</groupId>
+                <artifactId>jmimemagic</artifactId>
+                <version>0.1.2</version>
             </dependency>
             <!-- End Fika Dropbox changes -->
 

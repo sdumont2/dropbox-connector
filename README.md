@@ -24,6 +24,7 @@ This project was built with the intention of extending an existing
   * Dropbox "App" it is connected to needs to be put to "Production"
   * Clean up/Polish code and remove unused classes
   * Enhance Readme to include a breakdown of features
+  * Change Authentication so redirects aren't used, and instead codes are used
   
  
 Licensed under the Apache License 2.0   

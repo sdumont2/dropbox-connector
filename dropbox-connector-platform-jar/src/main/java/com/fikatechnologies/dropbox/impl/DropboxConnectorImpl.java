@@ -25,6 +25,7 @@ import com.dropbox.core.v2.files.*;
 import com.dropbox.core.v2.users.FullAccount;
 import com.dropbox.core.v2.users.SpaceUsage;
 import com.fikatechnologies.dropbox.DropboxConnector;
+import net.sf.jmimemagic.*;
 import org.alfresco.dropbox.DropboxConstants;
 import org.alfresco.dropbox.exceptions.DropboxClientException;
 import org.alfresco.dropbox.exceptions.FileNotFoundException;
@@ -44,10 +45,13 @@ import org.alfresco.service.cmr.site.SiteInfo;
 import org.alfresco.service.cmr.site.SiteService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.client.RestClientException;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.*;
 
@@ -468,6 +472,18 @@ public class DropboxConnectorImpl implements DropboxConnector
 			ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
 			writer.guessEncoding();
 			if (dropboxFile != null) {
+				InputStream stream = dropboxFile.getInputStream();
+				//getting the mimetype from the input stream byte array
+				MagicMatch matcher = null;
+				try {
+					matcher = Magic.getMagicMatch(IOUtils.toByteArray(stream));
+				} catch (MagicParseException | MagicMatchNotFoundException | IOException | MagicException e) {
+					e.printStackTrace();
+				}
+				if (matcher != null) {
+					String mimetype = matcher.getMimeType();
+					writer.setMimetype(mimetype);
+				}
 				writer.putContent(dropboxFile.getInputStream());
 			}else {
 				return null;
