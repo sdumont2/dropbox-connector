@@ -64,7 +64,7 @@
             {
                type: "submit"
             });
-         
+         this.widgets.auth = Alfresco.util.createYUIButton(this, "dropbox-auth", null, { type: "submit" });
          this.widgets.link = Alfresco.util.createYUIButton(this, "dropbox-link", this.onClick, {type: "link" });
         
          if (this.widgets.ok != null){
@@ -84,6 +84,24 @@
 	         // Initialise the form
 	         form.init();
          }
+
+          if (this.widgets.auth != null){
+              // Form definition
+              var form2 = new Alfresco.forms.Form(this.id + "-authform");
+              form2.setSubmitElements(this.widgets.auth);
+              form2.setSubmitAsJSON(true);
+              form2.setAJAXSubmit(true,
+                  {
+                      successCallback:
+                          {
+                              fn: this.onSuccess,
+                              scope: this
+                          }
+                  });
+
+              // Initialise the form
+              form2.init();
+          }
          
          // Finally show the main component body here to prevent UI artifacts on YUI button decoration
          Dom.setStyle(this.id + "-body", "display", "block");

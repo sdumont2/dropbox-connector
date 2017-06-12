@@ -14,8 +14,8 @@
 
     <!-- Changes here to update from dropboxservice to dropbox connector, also to include ability to set the app key and app secret through global properties -->
     <bean id="dropboxClientFactory" class="com.fikatechnologies.dropbox.impl.DropboxClientFactory">
-        <constructor-arg value="${dropbox.appKey}"/>
-        <constructor-arg value="${dropbox.appSecret}"/>
+        <constructor-arg value="a4yx43gwuxvrtsm"/>
+        <constructor-arg value="mwnu3vea9myezhr"/>
     </bean>
  
  <!-- Dropbox Connector -->
@@ -338,6 +338,18 @@
         </property>
         <property name="nodeService">
             <ref bean="nodeService"/>
+        </property>
+    </bean>
+
+    <bean id="webscript.org.alfresco.dropbox.webscripts.LinkDropboxUser.post" class="org.alfresco.dropbox.webscripts.LinkDropboxUser" parent="webscript">
+        <property name="personService">
+            <ref bean="personService"/>
+        </property>
+        <property name="nodeService">
+            <ref bean="nodeService"/>
+        </property>
+        <property name="dropboxConnector">
+            <ref bean="dropboxConnector"/>
         </property>
     </bean>
     

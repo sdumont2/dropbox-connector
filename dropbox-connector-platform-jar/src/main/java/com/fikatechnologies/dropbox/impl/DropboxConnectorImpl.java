@@ -786,7 +786,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 	}
 
 	private String metadataAsJSON(Metadata metadata){
-		String json;
+		String json=null;
 		if(metadata!=null) {
 			if (metadata instanceof FileMetadata) {
 				FileMetadata fileMetadata = (FileMetadata) metadata;
@@ -800,7 +800,7 @@ public class DropboxConnectorImpl implements DropboxConnector
 				throw new IllegalArgumentException("Metadata supplied was neither folder metadata or file metadata");
 			}
 		}else{
-			throw new NullPointerException(" JSON Metadata was null due to earlier error");
+			logger.trace(" JSON Metadata was null due to earlier error");
 		}
 		return json;
 	}

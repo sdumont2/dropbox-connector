@@ -39,9 +39,17 @@
           </div>
     <#else>
             <div class="row">
-            <div class="buttons">
-               <button id="${el}-dropbox-link" name="save">Link Account</button>
-            </div>
+                <div class="buttons">
+                    <button id="${el}-dropbox-link" name="save">Start Account Authorization</button>
+                </div>
+                <form id="${el}-authform" action="${url.context}/service/components/profile/user-dropbox/link" method="post">
+                    <div class="fields">
+                        <label for="${el}-authcode">Authorization Code:</label><input id="${el}-authcode" type="text" name="authcode">
+                    </div>
+                <div class="buttons">
+                   <button id="${el}-dropbox-auth" name="save">Link Account With Code</button>
+                </div>
+                </form>
             </div>
     </#if>
     </div>

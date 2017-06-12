@@ -21,7 +21,21 @@ function main()
       status.code = result.status;
    }
   } else if (url.templateArgs.action == "link"){
-	  model.success = true;
+      var conn = remote.connect("alfresco");
+      var code = "none";
+      for each (field in formdata.fields)
+      {
+          if(field.name =="authcode"){
+              code = field;
+          }
+      }
+      var result = conn.post("/dropbox/account/link/" + user.id+"/"+code, "{}");
+      if(result.status == 200){
+          model.success = true;
+      }else{
+          model.success = false;
+          status.code = result.status;
+      }
   }
 }
 
