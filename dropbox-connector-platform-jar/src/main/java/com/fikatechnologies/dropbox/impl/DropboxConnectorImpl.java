@@ -164,8 +164,10 @@ public class DropboxConnectorImpl implements DropboxConnector
 		String authorizeUrl = null;
 		if(callbackUrl != null){
 
-			DbxWebAuth.Request authRequest = DbxWebAuth.newRequestBuilder()
-					.withRedirectUri(callbackUrl, csrfTokenStore).build();
+			//DbxWebAuth.Request authRequest = DbxWebAuth.newRequestBuilder()
+			//		.withRedirectUri(callbackUrl, csrfTokenStore).build();
+
+			DbxWebAuth.Request authRequest = DbxWebAuth.newRequestBuilder().withNoRedirect().build();
 
 			persistTokens("", false);
 
@@ -181,7 +183,14 @@ public class DropboxConnectorImpl implements DropboxConnector
 			NodeRef person = personService.getPerson(AuthenticationUtil.getRunAsUser());
 
 			if(nodeService.hasAspect(person, DropboxConstants.Model.ASPECT_DROBOX_OAUTH)){
-				DbxAuthFinish authFinish;
+				DbxAuthFinish authFinish = null;
+				try {
+					authFinish = dropboxClientFactory.getDbxWebAuth().finishFromCode(callbackUrl);
+				} catch (DbxException e) {
+					e.printStackTrace();
+				}
+
+				/* Taken out to finish from code. Leaving wired, for potential future changes
 				try {
 					authFinish = dropboxClientFactory.getDbxWebAuth().finishFromRedirect(callbackUrl, csrfTokenStore, request);
 				} catch (DbxWebAuth.BadRequestException ex) {
@@ -210,7 +219,8 @@ public class DropboxConnectorImpl implements DropboxConnector
 					logger.error("On /dropbox-auth-finish: Error getting token: " + ex.getMessage());
 					//response.sendError(503, "Error communicating with Dropbox.");
 					return false;
-				}
+				}*/
+				assert authFinish != null;
 				String accessToken = authFinish.getAccessToken();
 
 				persistTokens(accessToken, true);

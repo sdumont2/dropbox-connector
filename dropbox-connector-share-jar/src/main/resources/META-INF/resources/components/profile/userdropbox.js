@@ -66,7 +66,7 @@
             });
          this.widgets.auth = Alfresco.util.createYUIButton(this, "dropbox-auth", null, { type: "submit" });
          this.widgets.link = Alfresco.util.createYUIButton(this, "dropbox-link", this.onClick, {type: "link" });
-        
+
          if (this.widgets.ok != null){
 	         // Form definition
 	         var form = new Alfresco.forms.Form(this.id + "-form");
@@ -115,7 +115,7 @@
     		            {
     					    fn: function(response)
     					    {
-    						    window.location=response.json.authURL;
+    						    window.open(response.json.authURL);
     						},
     						scope: this
     		            },

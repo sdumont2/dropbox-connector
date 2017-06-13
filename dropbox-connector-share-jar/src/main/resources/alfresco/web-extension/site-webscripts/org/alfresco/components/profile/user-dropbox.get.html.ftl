@@ -6,7 +6,8 @@
 
 <@markup id="js">
   <#-- JavaScript Dependencies -->
-  <@script type="text/javascript" src="${url.context}/res/components/profile/userdropbox.js"></@script> 
+    <@script type="text/javascript" src="${url.context}/res/components/profile/userdropbox.js"></@script>
+
 </@>
 
 <@markup id="widgets">
@@ -44,7 +45,7 @@
                 </div>
                 <form id="${el}-authform" action="${url.context}/service/components/profile/user-dropbox/link" method="post">
                     <div class="fields">
-                        <label for="${el}-authcode">Authorization Code:</label><input id="${el}-authcode" type="text" name="authcode">
+                        <label for="${el}-authcode">Authorization Code:</label><br><input id="${el}-authcode" type="text" name="authcode">
                     </div>
                 <div class="buttons">
                    <button id="${el}-dropbox-auth" name="save">Link Account With Code</button>

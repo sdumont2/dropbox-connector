@@ -17,14 +17,27 @@ This project was built with the intention of extending an existing
  * Uses [Dropbox's Java SDK](https://www.dropbox.com/developers/documentation/java) to connect and make API calls
  * Expands on and updates original integration [found here](https://github.com/Alfresco/alfresco-dropbox-integration), but now supports interaction with Dropbox v2 API
  
+# How to connect your account
+
+ * After login screen go to your user profile
+ * From user profile, there should be a tab called "dropbox"
+ * On the Dropbox tab user's should click the "Start Authentication" button
+ * A new tab will open in your browser with a login screen for your Dropbox credentials
+  (if you're not logged in already, if you are, skip this step)
+ * You will be asked to allow the connector to access your dropbox account
+ * When you click allow, you will be given a code
+ * Copy the code and paste it in your user profile and click the  "Link Account" button
+ * This should link your account and refresh the page, giving you a view of your account stats
+ (i.e. the amount of space available to you and how much you've used, etc.)
+ 
+# How to send content to Dropbox
+
 # TODO
  
-  * Fix/Update Polling
   * Extensive testing
   * Dropbox "App" it is connected to needs to be put to "Production"
   * Clean up/Polish code and remove unused classes
-  * Enhance Readme to include a breakdown of features
-  * Change Authentication so redirects aren't used, and instead codes are used
+  * Enhance Readme to include a breakdown of features and how to use them
   
  
 Licensed under the Apache License 2.0   

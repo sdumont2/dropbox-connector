@@ -23,6 +23,8 @@ package org.alfresco.dropbox.webscripts;
 import com.dropbox.core.DbxSessionStore;
 import com.dropbox.core.DbxStandardSessionStore;
 import com.fikatechnologies.dropbox.DropboxConnector;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.*;
 import org.springframework.extensions.webscripts.servlet.WebScriptServletRuntime;
 
@@ -40,6 +42,7 @@ import java.util.Map;
 public class UrlDropboxAuth
     extends DeclarativeWebScript
 {
+    private static Log logger  = LogFactory.getLog(UrlDropboxAuth.class);
 
     private static final String CALLBACK_WEBSCRIPT = "/share/service/dropbox/account/verifier";
     private static final String CALLBACK_PARAM     = "callback";
@@ -68,8 +71,9 @@ public class UrlDropboxAuth
             HttpSession session = httpReq.getSession(true);
             String sessionKey = "dropbox-auth-csrf-token";
             DbxSessionStore csrfTokenStore = new DbxStandardSessionStore(session, sessionKey);
-
-            model.put(AUTHURL, dropboxConnector.getAuthorizeUrl(callbackUrl, csrfTokenStore));
+            String authUrl = dropboxConnector.getAuthorizeUrl(callbackUrl, csrfTokenStore);
+            logger.debug("Authorization url: "+authUrl);
+            model.put(AUTHURL, authUrl);
         }
         else
         {

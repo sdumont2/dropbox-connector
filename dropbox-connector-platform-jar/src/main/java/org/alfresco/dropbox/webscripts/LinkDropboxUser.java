@@ -20,17 +20,20 @@
 package org.alfresco.dropbox.webscripts;
 
 
+import com.dropbox.core.DbxSessionStore;
+import com.dropbox.core.DbxStandardSessionStore;
 import com.fikatechnologies.dropbox.DropboxConnector;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.NoSuchPersonException;
 import org.alfresco.service.cmr.security.PersonService;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.*;
+import org.springframework.extensions.webscripts.servlet.WebScriptServletRuntime;
 
-import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,7 +52,7 @@ public class LinkDropboxUser
     private DropboxConnector    dropboxConnector;
 
     private static final String SUCCESS = "success";
-    private static final String AUTH_CODE = "authcode";
+    private static final String AUTH_CODE = "code";
 
 
     public void setPersonService(PersonService personService)
@@ -75,17 +78,25 @@ public class LinkDropboxUser
 
         Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
         String user = templateArgs.get("user");
-        try {
-            logger.debug("The string is: "+ IOUtils.toString(req.getContent().getInputStream()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String code = templateArgs.get(AUTH_CODE);
         try
         {
             NodeRef nodeRef = personService.getPerson(user);
+            if(nodeService.exists(nodeRef)){
+                boolean authenticated = false;
 
-            //TODO AUTH STUFF
-            model.put(SUCCESS, true);
+                HttpServletRequest httpReq = WebScriptServletRuntime.getHttpServletRequest(req);
+                HttpSession session = httpReq.getSession(true);
+                String sessionKey = "dropbox-auth-csrf-token";
+                DbxSessionStore csrfTokenStore = new DbxStandardSessionStore(session, sessionKey);
+
+                logger.debug("Authenticating user: "+ personService.getPerson(nodeRef).getUserName());
+                authenticated = dropboxConnector.completeAuthentication(code, csrfTokenStore, httpReq.getParameterMap());
+                logger.debug("Dance complete: "+authenticated);
+                model.put(SUCCESS, true);
+            }else{
+                model.put(SUCCESS, false);
+            }
         }
         catch (NoSuchPersonException nspe)
         {
