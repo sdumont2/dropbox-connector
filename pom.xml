@@ -132,6 +132,11 @@
             <artifactId>jmimemagic</artifactId>
             <version>0.1.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.3.2</version>
+        </dependency>
         <!-- End Fika Dropbox changes -->
 
     </dependencies>
@@ -218,6 +223,11 @@
                 <artifactId>jmimemagic</artifactId>
                 <version>0.1.2</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>1.3.2</version>
+            </dependency>
             <!-- End Fika Dropbox changes -->
 
         </dependencies>
@@ -233,7 +243,7 @@
                     the layout of your AMP. The end result is that Maven will produce both a JAR file and an AMP with your
                     module.
                 -->
-                <!--
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
@@ -259,7 +269,7 @@
                         </dependency>
                     </dependencies>
                 </plugin>
-                -->
+
 
                 <!-- Filter resources in any sub-project with this config -->
                 <plugin>
