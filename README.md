@@ -20,7 +20,7 @@ This project was developed to allow users have synchronized content between
 
 To report a bug or issues, please use the [issues](https://github.com/FikaTechnologies/dropbox-connector/issues) page.
 
-Installation and configuration instructions are available [here](https://github.com/FikaTechnologies/dropbox-connector/blob/master/docs/install.md).
+Installation and configuration instructions are available [here](https://github.com/FikaTechnologies/dropbox-connector/blob/dev/docs/install.md).
 
 ## Important to Note
 
