@@ -210,7 +210,6 @@
 
 
 	<!-- Dropbox Poller -->
-	<!-- Disabled for now until polling support is completed -->
 	<bean id="dropboxPollerImpl" class="org.alfresco.dropbox.service.polling.DropboxPollerImpl">
         <property name="searchService">
             <ref bean="searchService"/>
@@ -226,6 +225,9 @@
         </property>
         <property name="dropboxConnector">
             <ref bean="dropboxConnector"/>
+        </property>
+        <property name="isPollingEnabled">
+            <value>${dropbox.poller.enabled}</value>
         </property>
     </bean>
     

@@ -45,7 +45,9 @@ import java.util.regex.Matcher;
 
 
 /**
- * 
+ *  Changes here to updated handling based on new api/sdk and metadata class for dropbox
+ *  connector and adding the ability to execute only
+ *  based on whether or not a boolean property is set to enabled polling
  * 
  * @author Jared Ottley
  */
@@ -59,6 +61,8 @@ public class DropboxPollerImpl
     private FileFolderService    fileFolderService;
     private TransactionService   transactionService;
     private DropboxConnector     dropboxConnector;
+
+    private boolean isPollingEnabled;
 
     private static final String  CMIS_DROPBOX_SITES_QUERY     = "SELECT * FROM st:site AS S JOIN db:syncable AS O ON S.cmis:objectId = O.cmis:objectId";
     private static final String  CMIS_DROPBOX_DOCUMENTS_QUERY = "SELECT D.* FROM cmis:document AS D JOIN db:dropbox AS O ON D.cmis:objectId = O.cmis:objectId";
@@ -90,6 +94,9 @@ public class DropboxPollerImpl
         this.transactionService = transactionService;
     }
 
+    public void setIsPollingEnabled(boolean isPollingEnabled){
+        this.isPollingEnabled = isPollingEnabled;
+    }
 
     public void setDropboxConnector(DropboxConnector dropboxConnector)
     {
@@ -99,215 +106,182 @@ public class DropboxPollerImpl
 
     public void execute()
     {
-        log.debug("Dropbox poller initiated.");
+        if(isPollingEnabled) {
+            log.debug("Dropbox poller initiated.");
 
-        // TODO where should the authentication and transactions go?
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>()
-        {
+            // TODO where should the authentication and transactions go?
+            AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
 
-            public Object doWork()
-                throws Exception
-            {
-                RetryingTransactionCallback<Object> txnWork = new RetryingTransactionCallback<Object>()
-                {
-                    public Object execute()
-                        throws Exception
-                    {
-                        List<NodeRef> sites = getSites();
+                public Object doWork()
+                        throws Exception {
+                    RetryingTransactionCallback<Object> txnWork = new RetryingTransactionCallback<Object>() {
+                        public Object execute()
+                                throws Exception {
+                            List<NodeRef> sites = getSites();
 
-                        List<NodeRef> folders = null;
-                        List<NodeRef> documents = null;
+                            List<NodeRef> folders = null;
+                            List<NodeRef> documents = null;
 
-                        if (sites != null)
-                        {
-                            for (NodeRef site : sites)
-                            {
-                                if (!isSyncing(site))
-                                {
-                                    log.debug("Processing Content in " + nodeService.getProperty(site, ContentModel.PROP_NAME));
-                                    try
-                                    {
-                                        syncOn(site);
+                            if (sites != null) {
+                                for (NodeRef site : sites) {
+                                    if (!isSyncing(site)) {
+                                        log.debug("Processing Content in " + nodeService.getProperty(site, ContentModel.PROP_NAME));
+                                        try {
+                                            syncOn(site);
 
-                                        folders = getSiteFolders(site);
-                                        documents = getSiteDocuments(site);
+                                            folders = getSiteFolders(site);
+                                            documents = getSiteDocuments(site);
 
 
-                                        if (documents != null)
-                                        {
-                                            // If the document is the child of a synced folder...we want to work on the folder as a
-                                            // full collection and not the document as an independent element
-                                            Iterator<NodeRef> i = documents.iterator();
+                                            if (documents != null) {
+                                                // If the document is the child of a synced folder...we want to work on the folder as a
+                                                // full collection and not the document as an independent element
+                                                Iterator<NodeRef> i = documents.iterator();
 
-                                            while (i.hasNext())
-                                            {
-                                                NodeRef document = i.next();
-                                                if (folders.contains(nodeService.getPrimaryParent(document).getParentRef()))
-                                                {
-                                                    i.remove();
-                                                }
-                                            }
-                                            if (documents.size() > 0)
-                                            {
-                                                for (NodeRef document : documents)
-                                                {
-                                                    updateNode(document);
-                                                }
-                                            }
-                                        }
-
-                                        if (folders.size() > 0)
-                                        {
-                                            for (NodeRef folder : folders)
-                                            {
-                                                log.debug("Looking for updates/new content in "
-                                                          + nodeService.getProperty(folder, ContentModel.PROP_NAME));
-
-                                                try
-                                                {
-                                                    Metadata metadata = dropboxConnector.getMetadata(folder);
-
-                                                    // Get the list of the content returned.
-                                                    // Changes for new API
-                                                    //List<Metadata> list = metadata.getContents();
-                                                    List<Metadata> list = dropboxConnector.getSpace(dropboxConnector.getDropboxPath(folder)).getEntries();
-
-                                                    for (Metadata child : list)
-                                                    {
-                                                        //TODO Make a reverse method from the getDropboxPath, and make a getAlfrescoPath method.
-                                                        //TODO See if this works as is first
-                                                        String name = child.getPathDisplay().replaceAll(Matcher.quoteReplacement(metadata.getPathDisplay()
-                                                                                                                          + "/"), "");
-
-                                                        NodeRef childNodeRef = fileFolderService.searchSimple(folder, name);
-
-                                                        if (childNodeRef == null)
-                                                        {
-                                                            addNode(folder, child, name);
-                                                        }
-                                                        else
-                                                        {
-                                                            updateNode(childNodeRef, child);
-                                                        }
+                                                while (i.hasNext()) {
+                                                    NodeRef document = i.next();
+                                                    if (folders.contains(nodeService.getPrimaryParent(document).getParentRef())) {
+                                                        i.remove();
                                                     }
-
-                                                    metadata = dropboxConnector.getMetadata(folder);
-
-                                                    dropboxConnector.persistMetadata(metadata, folder);
                                                 }
-                                                catch (NotModifiedException nme)
-                                                {
-                                                    // TODO
+                                                if (documents.size() > 0) {
+                                                    for (NodeRef document : documents) {
+                                                        updateNode(document);
+                                                    }
                                                 }
                                             }
+
+                                            if (folders.size() > 0) {
+                                                for (NodeRef folder : folders) {
+                                                    log.debug("Looking for updates/new content in "
+                                                            + nodeService.getProperty(folder, ContentModel.PROP_NAME));
+
+                                                    try {
+                                                        Metadata metadata = dropboxConnector.getMetadata(folder);
+
+                                                        // Get the list of the content returned.
+                                                        // Changes for new API
+                                                        //List<Metadata> list = metadata.getContents();
+                                                        List<Metadata> list = dropboxConnector.getSpace(dropboxConnector.getDropboxPath(folder)).getEntries();
+
+                                                        for (Metadata child : list) {
+                                                            //TODO Make a reverse method from the getDropboxPath, and make a getAlfrescoPath method.
+                                                            //TODO See if this works as is first
+                                                            String name = child.getPathDisplay().replaceAll(Matcher.quoteReplacement(metadata.getPathDisplay()
+                                                                    + "/"), "");
+
+                                                            NodeRef childNodeRef = fileFolderService.searchSimple(folder, name);
+
+                                                            if (childNodeRef == null) {
+                                                                addNode(folder, child, name);
+                                                            } else {
+                                                                updateNode(childNodeRef, child);
+                                                            }
+                                                        }
+
+                                                        metadata = dropboxConnector.getMetadata(folder);
+
+                                                        dropboxConnector.persistMetadata(metadata, folder);
+                                                    } catch (NotModifiedException nme) {
+                                                        // TODO
+                                                    }
+                                                }
+                                            }
+                                        } finally {
+                                            syncOff(site);
+                                            log.debug("End processing " + nodeService.getProperty(site, ContentModel.PROP_NAME));
+
+                                            documents = null;
+                                            folders = null;
                                         }
                                     }
-                                    finally
-                                    {
-                                        syncOff(site);
-                                        log.debug("End processing " + nodeService.getProperty(site, ContentModel.PROP_NAME));
 
-                                        documents = null;
-                                        folders = null;
-                                    }
-                                }
-
-                            }
-                        }
-
-                        folders = getFolders();
-                        documents = getDocuments();
-
-                        if (documents != null)
-                        {
-                            // If the document is the child of a synced folder...we want to work on the folder as a
-                            // full collection and not the document as an independent element
-                            Iterator<NodeRef> i = documents.iterator();
-
-                            while (i.hasNext())
-                            {
-                                NodeRef document = i.next();
-                                if(folders.size() > 0){
-                                    if (folders.contains(nodeService.getPrimaryParent(document).getParentRef()) && nodeService.hasAspect(nodeService.getPrimaryParent(document).getParentRef(), DropboxConstants.Model.ASPECT_SYNCABLE))
-                                    {
-                                        i.remove();
-                                    }
                                 }
                             }
-                            if (documents.size() > 0)
-                            {
-                                for (NodeRef document : documents)
-                                {
-                                    if(!isSyncing(document)){
-                                        syncOn(document);
-                                        updateNode(document);
-                                        syncOff(document);
-                                    }
-                                }
-                            }
-                        }
 
+                            folders = getFolders();
+                            documents = getDocuments();
 
-                        if (folders.size() > 0)
-                        {
-                            for (NodeRef folder : folders)
-                            {
-                                log.debug("Looking for updates/new content in "
-                                          + nodeService.getProperty(folder, ContentModel.PROP_NAME));
-                                if(!isSyncing(folder))
-                                {
-                                    syncOn(folder);
-                                    try
-                                    {
-                                        Metadata metadata = dropboxConnector.getMetadata(folder);
+                            if (documents != null) {
+                                // If the document is the child of a synced folder...we want to work on the folder as a
+                                // full collection and not the document as an independent element
+                                Iterator<NodeRef> i = documents.iterator();
 
-                                        // Get the list of the content returned.
-                                        // Changes for new API here
-                                        //List<Metadata> list = metadata.getContents();
-
-                                        List<Metadata> list = dropboxConnector.getSpace(dropboxConnector.getDropboxPath(folder)).getEntries();
-
-                                        for (Metadata child : list)
-                                        {
-                                            //TODO Make a reverse method from the getDropboxPath, and make a getAlfrescoPath method.
-                                            //TODO See if this works as is first
-                                            String name = child.getPathDisplay().replaceAll(Matcher.quoteReplacement(metadata.getPathDisplay()
-                                                    + "/"), "");
-
-                                            NodeRef childNodeRef = fileFolderService.searchSimple(folder, name);
-
-                                            if (childNodeRef == null)
-                                            {
-                                                addNode(folder, child, name);
-                                            }
-                                            else
-                                            {
-                                                updateNode(childNodeRef, child);
-                                            }
+                                while (i.hasNext()) {
+                                    NodeRef document = i.next();
+                                    if (folders.size() > 0) {
+                                        if (folders.contains(nodeService.getPrimaryParent(document).getParentRef()) && nodeService.hasAspect(nodeService.getPrimaryParent(document).getParentRef(), DropboxConstants.Model.ASPECT_SYNCABLE)) {
+                                            i.remove();
                                         }
-
-                                        metadata = dropboxConnector.getMetadata(folder);
-
-                                        dropboxConnector.persistMetadata(metadata, folder);
                                     }
-                                    catch (NotModifiedException nme)
-                                    {
-                                        // TODO
+                                }
+                                if (documents.size() > 0) {
+                                    for (NodeRef document : documents) {
+                                        if (!isSyncing(document)) {
+                                            syncOn(document);
+                                            updateNode(document);
+                                            syncOff(document);
+                                        }
                                     }
-                                    syncOff(folder);
                                 }
                             }
+
+
+                            if (folders.size() > 0) {
+                                for (NodeRef folder : folders) {
+                                    log.debug("Looking for updates/new content in "
+                                            + nodeService.getProperty(folder, ContentModel.PROP_NAME));
+                                    if (!isSyncing(folder)) {
+                                        syncOn(folder);
+                                        try {
+                                            Metadata metadata = dropboxConnector.getMetadata(folder);
+
+                                            // Get the list of the content returned.
+                                            // Changes for new API here
+                                            //List<Metadata> list = metadata.getContents();
+
+                                            List<Metadata> list = dropboxConnector.getSpace(dropboxConnector.getDropboxPath(folder)).getEntries();
+
+                                            for (Metadata child : list) {
+                                                //TODO Make a reverse method from the getDropboxPath, and make a getAlfrescoPath method.
+                                                //TODO See if this works as is first
+                                                String name = child.getPathDisplay().replaceAll(Matcher.quoteReplacement(metadata.getPathDisplay()
+                                                        + "/"), "");
+
+                                                NodeRef childNodeRef = fileFolderService.searchSimple(folder, name);
+
+                                                if (childNodeRef == null) {
+                                                    addNode(folder, child, name);
+                                                } else {
+                                                    updateNode(childNodeRef, child);
+                                                }
+                                            }
+
+                                            metadata = dropboxConnector.getMetadata(folder);
+
+                                            dropboxConnector.persistMetadata(metadata, folder);
+                                        } catch (NotModifiedException nme) {
+                                            // TODO
+                                        }
+                                        syncOff(folder);
+                                    }
+                                }
+                            }
+
+                            return null;
                         }
+                    };
 
-                        return null;
-                    }
-                };
+                    transactionService.getRetryingTransactionHelper().doInTransaction(txnWork, false);
 
-                transactionService.getRetryingTransactionHelper().doInTransaction(txnWork, false);
-
-                return null;
+                    return null;
+                }
+            }, AuthenticationUtil.getAdminUserName());
+        }else{
+            if(log.isTraceEnabled()) {
+                log.trace("Polling not enabled. Doing nothing.");
             }
-        }, AuthenticationUtil.getAdminUserName());
+        }
 
     }
 
