@@ -1,4 +1,3 @@
-
 <import resource="classpath:/alfresco/templates/org/alfresco/import/alfresco-util.js">
 /**
  * User Profile Component - User Dropbox GET method
