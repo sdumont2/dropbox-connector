@@ -28,11 +28,11 @@
          So doing for example $ mvn clean install alfresco:run twice will only execute this component the first time.
          You need to remove /alf_data_dev for it to be executed again. -->
     <bean id="dropbox.DemoComponent" class="org.alfresco.dropbox.platformsample.DemoComponent" parent="module.baseComponent" >
-        <property name="moduleId" value="dropbox-connector-platform-jar" />  <!-- See module.properties -->
+        <property name="moduleId" value="dropbox-connector-platform" />  <!-- See module.properties -->
         <property name="name" value="DemoComponent" />
         <property name="description" value="A demonstration component" />
-        <property name="sinceVersion" value="1.0" />
-        <property name="appliesFromVersion" value="0.99" /> <!-- 1.0 would not work here when using SNAPSHOT version in project  -->
+        <property name="sinceVersion" value="0.2" />
+        <property name="appliesFromVersion" value="0.1" /> <!-- 1.0 would not work here when using SNAPSHOT version in project  -->
         <property name="nodeService" ref="NodeService" />
         <property name="nodeLocatorService" ref="nodeLocatorService" />
     </bean>

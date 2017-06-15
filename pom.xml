@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.fikatechnologies</groupId>
     <artifactId>dropbox-connector</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
     <name>AIO - SDK 3.0 Beta</name>
     <description>All-In-One (AIO) project for SDK 3.0</description>
     <packaging>pom</packaging>
@@ -384,7 +384,7 @@
                         <!-- Bring in custom Modules -->
                         <moduleDependency>
                             <groupId>${project.groupId}</groupId>
-                            <artifactId>dropbox-connector-platform-jar</artifactId>
+                            <artifactId>dropbox-connector-platform</artifactId>
                             <version>${project.version}</version>
                         </moduleDependency>
 
@@ -412,7 +412,7 @@
                         <!-- Bring in custom Modules -->
                         <moduleDependency>
                             <groupId>${project.groupId}</groupId>
-                            <artifactId>dropbox-connector-share-jar</artifactId>
+                            <artifactId>dropbox-connector-share</artifactId>
                             <version>${project.version}</version>
                         </moduleDependency>
 
@@ -501,8 +501,8 @@
         </pluginRepository>
     </pluginRepositories>
   <modules>
-    <module>dropbox-connector-platform-jar</module>
-    <module>dropbox-connector-share-jar</module>
+    <module>dropbox-connector-platform</module>
+    <module>dropbox-connector-share</module>
     <module>integration-tests</module>
   </modules>
 </project>

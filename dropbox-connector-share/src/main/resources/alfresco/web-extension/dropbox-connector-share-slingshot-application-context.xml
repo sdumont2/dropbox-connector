@@ -14,11 +14,11 @@
    -->
 
    <!-- Add module specific messages and labels -->
-   <bean id="dropbox.dropbox-connector-share-jar.resources"
+   <bean id="dropbox.dropbox-connector-share.resources"
          class="org.springframework.extensions.surf.util.ResourceBundleBootstrapComponent">
       <property name="resourceBundles">
          <list>
-            <value>alfresco.web-extension.messages.dropbox-connector-share-jar</value>
+            <value>alfresco.web-extension.messages.dropbox-connector-share</value>
          </list>
       </property>
    </bean>

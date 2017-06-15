@@ -2,7 +2,7 @@
 
 ## Description
   
-This project was developed to allow users have synchronized content between
+This project was developed to allow users to have synchronized content between
  Alfresco and Dropbox. It Expands on and updates Alfresco's original, unsupported,
   integration [found here](https://github.com/Alfresco/alfresco-dropbox-integration).
    The project works by leveraging Dropbox's new API through
@@ -11,21 +11,21 @@ This project was developed to allow users have synchronized content between
     
   ![alfresco_to_dropbox_connector](docs/AlfDropCon.png "Alfresco to Dropbox Connector")  
  
- The Alfresco to Dropbox connector will allow users to synchronise files and folder between Alfresco and Dropbox. 
- Synchronized folders will allow users to place content into a folder in Dropbox and have it appear in Alfresco, and vice versa too.
+ The Alfresco to Dropbox connector will allow users to synchronise files and folders between Alfresco and Dropbox. 
+ Synchronized folders will allow users to place content into a folder in Dropbox and have it appear in Alfresco, and vice versa.
  Users will be able to see if their content is currently synchronizing and be able to differentiate
- between synced content and unsynced content through use of icons noted next to the content in Alfresco.
+ between synced content and unsynced content through use of icons noted next to the content thumbnails in Alfresco.
  
 ## Installation and Support
 
 To report a bug or issues, please use the [issues](https://github.com/FikaTechnologies/dropbox-connector/issues) page.
 
-Installation and configuration instructions are available [here](https://github.com/FikaTechnologies/dropbox-connector/blob/dev/docs/install.md).
+Installation, configuration, and general use instructions are available [here](https://github.com/FikaTechnologies/dropbox-connector/blob/dev/docs/install.md).
 
 ## Important to Note
 
- * Runs using Community and/or Enterprise assets (**Must** use Alfresco Community 5.0.b or higher)
- * Polling has known issues of trying to sync with content that may not exist in Dropbox, and will throw errors. Use with Caution.
+ * Runs using Community and/or Enterprise assets (**Must** use Alfresco Community 5.0.b or higher and Alfresco Enterprise 5.0.2 or higher)
+ * Polling has known issues of trying to sync with content that may not exist in Dropbox or Alfresco, and will throw errors. Use with Caution.
 
 ## Project RoadMap
  

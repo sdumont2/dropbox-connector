@@ -1,7 +1,6 @@
 # Alfresco to Dropbox Connector Installation and Set up Guide
 
-
-This is built on an All-In-One (AIO) project for Alfresco SDK 3.0.  Backwards compatible for Community version 5.0.b or higher. 
+This is built on an All-In-One (AIO) project for Alfresco SDK 3.0.  Backwards compatible for Community version 5.0.b or higher and Enterprise version 5.0.2 or higher. 
 
 ## Installation
 
@@ -10,19 +9,19 @@ Run project with `mvn clean install -DskipTests=true alfresco:run` or `./run.sh`
 This project was built with the intention of extending an existing
  integration with Dropbox that due to limitations of the project, 
  could no longer function in any capacity (Dropbox's v1 API 
- was retired and the original project was built off of an sdk that utilized v1 endpoints). 
+ was retired and the original project was built off of an sdk that utilized v1 endpoints and a retired authentication method). 
  
 ### Files
  
- 1. dropbox-connector-platform-jar-1.0-SNAPSHOT.jar - This file contains all of the core repository extensions required to interact with Dropbox  
- 2. dropbox-connector-share-jar-1.0-SNAPSHOT.jar  - This file contains all of the Share customizations for Alfresco  
+ 1. dropbox-connector-platform-0.2-SNAPSHOT.jar - This file contains all of the core repository extensions required to interact with Dropbox  
+ 2. dropbox-connector-share-0.2-SNAPSHOT.jar  - This file contains all of the Share customizations for Alfresco  
  3. jmimemagic-0.1.2.jar - This file is a dependency for the project to work properly  
  4. jackson-core-2.8.3.jar - This file is a dependency for the project to work properly  
  5. dropnox-core-sdk-3.0.3.jar - This file is a dependency for the project to work properly  
  
  OR  
- 1. dropbox-connector-platform-jar-1.0-SNAPSHOT.amp - This file contains all of the core repository extensions required to interact with Dropbox
- 2. dropbox-connector-share-jar-1.0-SNAPSHOT.amp - This file contains all of the Share customizations for Alfresco
+ 1. dropbox-connector-platform-0.2-SNAPSHOT.amp - This file contains all of the core repository extensions required to interact with Dropbox
+ 2. dropbox-connector-share-0.2-SNAPSHOT.amp - This file contains all of the Share customizations for Alfresco
  
 ### How to install into Alfresco Tomcat
 
