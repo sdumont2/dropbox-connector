@@ -3,7 +3,8 @@
 
 This is built on an All-In-One (AIO) project for Alfresco SDK 3.0.  Backwards compatible for Community version 5.0.b or higher. 
 
-##Installation
+## Installation
+
 Run project with `mvn clean install -DskipTests=true alfresco:run` or `./run.sh` and verify that it runs.
 
 This project was built with the intention of extending an existing
