@@ -77,7 +77,7 @@ The properties available are:
   The process of obtaining an authentication code. You will still need to use the "Link Account"
   button on your profile page in order to be fully authenticated
  * Once a document is sent to Dropbox your document actions will change
- ![sent_actions](docs/DocActionsSent.png "Synced Document Actions")
+ ![sent_actions](DocActionsSent.png "Synced Document Actions")
  * The "Get from Dropbox" button will obtain any new versions or metadata from
   Dropbox. This is in case polling is not enabled,
    or the scheduled job hasn't run and you need your changes now
