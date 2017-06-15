@@ -16,9 +16,9 @@ This project was built with the intention of extending an existing
  
  1. dropbox-connector-platform-jar-1.0-SNAPSHOT.jar - This file contains all of the core repository extensions required to interact with Dropbox  
  2. dropbox-connector-share-jar-1.0-SNAPSHOT.jar  - This file contains all of the Share customizations for Alfresco  
- 3. jmimemagic-0.1.2.jar - This file is a dependency for the jars to work properly  
- 4. jackson-core-2.8.3.jar - This file is a dependency for the jars to work properly  
- 5. dropnox-core-sdk-3.0.3.jar - This file is a dependency for the jars to work properly  
+ 3. jmimemagic-0.1.2.jar - This file is a dependency for the project to work properly  
+ 4. jackson-core-2.8.3.jar - This file is a dependency for the project to work properly  
+ 5. dropnox-core-sdk-3.0.3.jar - This file is a dependency for the project to work properly  
  
  OR  
  1. dropbox-connector-platform-jar-1.0-SNAPSHOT.amp - This file contains all of the core repository extensions required to interact with Dropbox

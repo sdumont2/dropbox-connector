@@ -8,6 +8,13 @@ This project was developed to allow users have synchronized content between
    The project works by leveraging Dropbox's new API through
   [Dropbox's Java SDK](https://www.dropbox.com/developers/documentation/java) in order
   to make API calls to push and pull content between Alfresco and Dropbox.
+    
+  ![alfresco_to_dropbox_connector](docs/AlfDropCon.png "Alfresco to Dropbox Connector")  
+ 
+ The Alfresco to Dropbox connector will allow users to synchronise files and folder between Alfresco and Dropbox. 
+ Synchronized folders will allow users to place content into a folder in Dropbox and have it appear in Alfresco, and vice versa too.
+ Users will be able to see if their content is currently synchronizing and be able to differentiate
+ between synced content and unsynced content through use of icons noted next to the content in Alfresco.
  
 ## Installation and Support
 
@@ -18,14 +25,25 @@ Installation and configuration instructions are available [here](https://github.
 ## Important to Note
 
  * Runs using Community and/or Enterprise assets (**Must** use Alfresco Community 5.0.b or higher)
- * Does not yet actively check for updates between Alfresco and Dropbox (needs to be manually updated from Alfresco using document actions)
+ * Polling has known issues of trying to sync with content that may not exist in Dropbox, and will throw errors. Use with Caution.
 
 ## Project RoadMap
  
-  * Extensive testing
-  * Dropbox "App" it is connected to needs to be put to "Production"
-  * Clean up/Polish code and remove unused classes
-  * Enhance Readme to include a breakdown of features and how to use them
+  1. ~~Update project to use Dropbox java sdk instead of spring social dropbox connector, due to api version incompatibility~~
+  2. ~~Update Metadata and other method calls in order to interact with Dropbox core sdk~~
+  3. ~~Update Authentication to use oAuth2 and interact with Dropbox core sdk~~
+  4. ~~Update poller to a working state~~
+  5. ~~Add file copy support~~
+  6. ~~Change authentication method to no longer support redirect, in favor of making set-up of app on Alfresco side rather than on Dropbox side~~
+  7. ~~Allow poller to be configurable~~
+  8. Improve documentation to include a README and installation and use guide
+  9. Improved/enhanced error handling
+  10. Code cleanup
+  11. User interface clean up
+  12. Apply for app to be considered a production level application for Dropbox
+  13. Extensive testing and bugfixing
+  14. JavaDoc support
+  15. Generic Support of the extension 
   
  
 Licensed under the Apache License 2.0   
