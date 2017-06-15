@@ -56,28 +56,28 @@ The properties available are:
  * After login screen go to your user profile
  * From user profile, there should be a tab called "dropbox"
  * On the Dropbox tab user's should click the "Start Authentication" button
- ![authentication_screen](AuthenticationScreen.png "Authentication Screen")
+ ![authentication_screen](docs/AuthenticationScreen.png "Authentication Screen")
  * A new tab will open in your browser with a login screen for your Dropbox credentials
   (if you're not logged in already, if you are, skip this step)
  * You will be asked to allow the connector to access your dropbox account
- ![allow_access](AuthConfirmation.png "Allow Access")
+ ![allow_access](docs/AuthConfirmation.png "Allow Access")
  * When you click allow, you will be given a code
- ![auth_code](AuthCode.png "Authentication Code")
+ ![auth_code](docs/AuthCode.png "Authentication Code")
  * Copy the code and paste it in your user profile and click the  "Link Account" button
  * This should link your account and refresh the page, giving you a view of your account stats
  (i.e. the amount of space available to you and how much you've used, etc.)
- ![authenticated_account](AuthenticatedAccount.png "Authenticated Account")
+ ![authenticated_account](docs/AuthenticatedAccount.png "Authenticated Account")
  
 ### How to send content to Dropbox
 
  * You can send a document to Dropbox from the document actions
- ![document_actions](DocActionsToSend.png "Document Actions")
+ ![document_actions](docs/DocActionsToSend.png "Document Actions")
  * Clicking the "Send to Dropbox" button will send your document to Dropbox.
   **Note:** If you haven't been through the Authentication process this will take you through
   The process of obtaining an authentication code. You will still need to use the "Link Account"
   button on your profile page in order to be fully authenticated
  * Once a document is sent to Dropbox your document actions will change
- ![sent_actions](DocActionsSent.png "Synced Document Actions")
+ ![sent_actions](docs/DocActionsSent.png "Synced Document Actions")
  * The "Get from Dropbox" button will obtain any new versions or metadata from
   Dropbox. This is in case polling is not enabled,
    or the scheduled job hasn't run and you need your changes now
@@ -87,7 +87,7 @@ The properties available are:
  * Below is a screenshot of what the content will look like from inside of
  Dropbox. This location is under the "Apps" folder, and in the case of
  this example, located under the "test-alf" directory
- ![dropbox_view](InsideDropbox.png "Dropbox View")
+ ![dropbox_view](docs/InsideDropbox.png "Dropbox View")
  
  
  
