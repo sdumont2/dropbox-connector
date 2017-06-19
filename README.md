@@ -29,9 +29,9 @@ Installation, configuration, and general use instructions are available [here](h
 
 ## Project RoadMap
 
-  1. ~~Update project to use Dropbox java sdk instead of spring social dropbox connector, due to api version incompatibility~~
-  2. ~~Update Metadata and other method calls in order to interact with Dropbox core sdk~~
-  3. ~~Update Authentication to use oAuth2 and interact with Dropbox core sdk~~
+  1. ~~Update project to use Dropbox java SDK instead of spring social dropbox connector, due to api version incompatibility~~
+  2. ~~Update Metadata and other method calls in order to interact with Dropbox core SDK~~
+  3. ~~Update Authentication to use oAuth2 and interact with Dropbox core SDK~~
   4. ~~Update poller to a working state~~
   5. ~~Add file copy support~~
   6. ~~Change authentication method to no longer support redirect, in favor of making set-up of app on Alfresco side rather than on Dropbox side~~
@@ -41,7 +41,7 @@ Installation, configuration, and general use instructions are available [here](h
   10. Code cleanup
   11. User interface clean up
   12. Apply for app to be considered a production level application for Dropbox
-  13. Extensive testing and bugfixing
+  13. Extensive testing and bug fixing
   14. JavaDoc support
   15. Generic Support of the extension
 
