@@ -11,7 +11,7 @@
     <parent>
         <groupId>com.fikatechnologies</groupId>
         <artifactId>dropbox-connector</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.2-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.fikatechnologies</groupId>
             <artifactId>dropbox-connector-platform-jar</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.2-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
 
