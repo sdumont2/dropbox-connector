@@ -22,7 +22,7 @@
              that is generated for the AIO project -->
         <dependency>
             <groupId>com.fikatechnologies</groupId>
-            <artifactId>dropbox-connector-platform-jar</artifactId>
+            <artifactId>dropbox-connector-platform</artifactId>
             <version>0.2-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
