@@ -25,7 +25,7 @@ Installation, configuration, and general use instructions are available [here](h
 ## Important to Note
 
  * Runs using Community and/or Enterprise assets (**Must** use Alfresco Community 5.0.b or higher and Alfresco Enterprise 5.0.2 or higher)
- * Polling has known issues of trying to sync with content that may not exist in Dropbox or Alfresco, and will throw errors. Use with Caution..
+ * Polling has known issues of trying to sync with content that may not exist in Dropbox or Alfresco, and will throw errors. Use with Caution.
 
 ## Project RoadMap
 
