@@ -9,10 +9,10 @@ pipeline {
             steps {
                 git url: 'https://github.com/cyrille-leclerc/multi-module-maven-project'
 
-                withMaven(maven: 'M3', mavenSettingsConfig: 'my-maven-settings', mavenLocalRepo: '.repository') {
+                withMaven(maven: 'M3', mavenSettingsConfig: '49b8c9d8-64d8-4cd1-978e-72f73db7a261', mavenLocalRepo: '.repository') {
              
                     // Run the maven build
-                    bat "mvn clean install -DskipTests=true"
+                    sh "mvn clean install -DskipTests=true"
              
                 } 
             }
